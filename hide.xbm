@@ -1,0 +1,5 @@
+const hide_width = 10;
+const hide_height = 10;
+const hide_bits: array[0..19] of Byte = (
+   $00, $00, $00, $00, $00, $00, $00, $00, $fe, $01, $fe, $01,
+   $00, $00, $00, $00, $00, $00, $00, $00);

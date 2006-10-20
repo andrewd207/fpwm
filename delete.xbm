@@ -1,0 +1,5 @@
+const delete_width = 10;
+const delete_height = 10;
+const delete_bits: array[0..19] of Byte = (
+   $00, $00, $84, $00, $ce, $01, $fc, $00, $78, $00, $78, $00,
+   $fc, $00, $ce, $01, $84, $00, $00, $00);
