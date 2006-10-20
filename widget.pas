@@ -66,7 +66,7 @@ type
   PWMWidget = ^TWMWidget;
 
   TWMWidget = record
-	_CLASS: Pointer;
+	_CLASS: TWMClass;
 	xwindow: TWindow;
 	mapped: Integer;
 	dim: TWMDim;
@@ -102,7 +102,7 @@ begin
 	wmcontext := TXContext(XrmUniqueQuark);
 end;
 
-procedure widget_create(widget: PWMWidget; _class: Pointer; xparent: TWindow;
+procedure widget_create(widget: PWMWidget; _class: TWMClass; xparent: TWindow;
     x, y, width, height: Integer);
 var
 	attr: TXSetWindowAttributes;
@@ -118,75 +118,76 @@ begin
 	attr.override_redirect := True;
 	attr.background_pixel := WhitePixel(display, screen);
 	widget^.xwindow := XCreateWindow(display, xparent, x, y, width, height,
-	    0, CopyFromParent, InputOutput, CopyFromParent,
+	    0, CopyFromParent, InputOutput, PVisual(CopyFromParent),
 	    CWOverrideRedirect or CWBackPixel, @attr);
 	XSaveContext(display, widget^.xwindow, wmcontext,
-	    (XPointer)widget);
+	    TXPointer(widget));
 end;
 
-procedure widget_savecontext(struct widget *widget, Window xwindow)
+procedure widget_savecontext(widget: PWMWidget; xwindow: TWindow);
 begin
-	clerr();
-	XSaveContext(display, xwindow, wmcontext, (XPointer)widget);
-	sterr();
+//	clerr();
+	XSaveContext(display, xwindow, wmcontext, TXPointer(widget));
+//	sterr();
 end;
 
-struct widget *widget_find(Window xwindow, CLASS class)
+function widget_find(xwindow: TWindow; _CLASS: TWMClass): PWMWidget;
+var
+	widget: PWMWidget;
 begin
-	struct widget *widget;
-
-	/* the double cast is there to silent gcc warnings */
 	if (XFindContext(display, xwindow, wmcontext,
-	    (XPointer *)(void *)&widget) == 0)
-		return (class == CLASS_ANY || widget^.class == class) ?
-		    widget : NULL;
+	    @widget) = 0) then
+        begin
+                if (_class = CLASS_ANY) or (widget^._class = _class) then
+  		 Result :=  widget
+                else Result := nil;
+        end
 	else
-		return nil;
+		Result := nil;
 end;
 
-procedure widget_resize(struct widget *widget, int width, int height)
+procedure widget_resize(widget: PWMWidget; width, height: Integer);
 begin
-	widget^.dim.width = width;
-	widget^.dim.height = height;
+	widget^.dim.width := width;
+	widget^.dim.height := height;
 	XResizeWindow(display, widget^.xwindow, width, height);
 end;
 
-procedure widget_move(struct widget *widget, int x, int y)
+procedure widget_move(widget: PWMWidget; x, y: Integer);
 begin
-	widget^.dim.x = x;
-	widget^.dim.y = y;
+	widget^.dim.x := x;
+	widget^.dim.y := y;
 	XMoveWindow(display, widget^.xwindow, x, y);
 end;
 
-procedure widget_moveresize(struct widget *widget, int x, int y,
-    int width, int height)
+procedure widget_moveresize(widget: PWMWidget; x, y, width, height: Integer);
 begin
-	widget^.dim.x = x;
-	widget^.dim.y = y;
-	widget^.dim.width = width;
-	widget^.dim.height = height;
+	widget^.dim.x := x;
+	widget^.dim.y := y;
+	widget^.dim.width := width;
+	widget^.dim.height := height;
 	XMoveResizeWindow(display, widget^.xwindow, x, y, width, height);
 end;
 
-procedure widget_map(struct widget *widget)
+procedure widget_map(widget: PWMWidget);
 begin
-	widget^.mapped = 1;
+	widget^.mapped := 1;
 	XMapWindow(display, widget^.xwindow);
 end;
 
-procedure widget_unmap(struct widget *widget)
+procedure widget_unmap(widget: PWMWidget);
 begin
-	widget^.mapped = 0;
+	widget^.mapped := 0;
 	XUnmapWindow(display, widget^.xwindow);
 end;
 
-procedure widget_destroy(struct widget *widget)
+procedure widget_destroy(widget: PWMWidget);
 begin
 	XDeleteContext(display, widget^.xwindow, wmcontext);
 	XDestroyWindow(display, widget^.xwindow);
 end;
 
-procedure widget_deletecontext(Window xwindow)
+procedure widget_deletecontext(xwindow: TWindow);
 begin
 	XDeleteContext(display, xwindow, wmcontext);
 end;

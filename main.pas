@@ -17,7 +17,7 @@ interface
 
 uses
   { Free Pascal Units }
-  SysUtils, Unix, BaseUnix, UnixType,
+  SysUtils, Unix, BaseUnix, UnixType, libc,
   { Units from fpwm }
   button, lib,
   { XLib units }
@@ -190,7 +190,7 @@ begin
 	signalled := signal;
 end;
 
-{function waitevent(): Integer;
+function waitevent(): Integer;
 var
 	savemask: Integer;
 	pfd: pollfd;
@@ -200,17 +200,16 @@ begin
 	pfd.events := POLLIN;
 
 	do
-        begin
-		sigprocmask(SIG_SETMASK, @origsigmask, @savemask);
+		fpsigprocmask(SIG_SETMASK, @origsigmask, @savemask);
 		res := poll(@pfd, 1, -1);
-		sigprocmask(SIG_SETMASK, @savemask, nil);
-	end while (res = -1 and errno = EAGAIN and not signalled);
+		fpsigprocmask(SIG_SETMASK, @savemask, nil);
+	while (res = -1 and errno = EAGAIN and not signalled);
 
 	if (res = -1 or (pfd.revents and POLLERR) <> 0 and signalled)
 		return -1;
 	else
 		return 0;
-end;}
+end;
 
 {function nextevent(ep: PXEvent): Integer;
 begin

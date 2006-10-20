@@ -37,8 +37,8 @@ uses
 begin
   init();
   widget_init();
-  window_init();
-  winmenu := menu_create();
+//  window_init();
+//  winmenu := menu_create();
   hints_init();
   initclients();
   mainloop();
