@@ -44,13 +44,15 @@ uses
 type
   void_t = procedure;
   
-  window_t = procedure (p1: TWindow);
+  window_t = procedure (p1: PWindow);
 
-  clientmessage_t = function (p1: TWindow; p2: PXClientMessageEvent): Integer;
+  clientmessage_t = function (p1: PWindow; p2: PXClientMessageEvent): Integer;
 
-  propertynotify_t = function (p1: TWindow; p2: PXPropertyEvent): Integer;
+  propertynotify_t = function (p1: PWindow; p2: PXPropertyEvent): Integer;
 
-  TWMHHints = record
+  delete_t = function (p1: PWindow): Integer;
+
+  TWMHints = record
 	{ The name of the hints }
 	name: PChar;
 
@@ -107,28 +109,28 @@ type
 	 * window.  A hint should return nonzero if it knows how
 	 * to delete the window.
          }
-	delete: window_t;
+	delete: delete_t;
 
 	{ Called after restacking windows }
 	restack: void_t;
   end;
 
-{procedure hints_init();
+procedure hints_init();
 procedure hints_fini();
-procedure hints_manage(struct window * );
-procedure hints_unmanage(struct window * );
-procedure hints_map(struct window * );
-procedure hints_unmap(struct window *);
-procedure hints_withdraw(struct window * );
-procedure hints_activate(struct window * );
-procedure hints_deactivate(struct window * );
-procedure hints_move(struct window * );
-procedure hints_resize(struct window * );
-procedure hints_moveresize(struct window * );
-procedure hints_clientmessage(struct window *, XClientMessageEvent * );
-procedure hints_propertynotify(struct window *, XPropertyEvent * );
-int hints_delete(struct window * );
-procedure hints_restack();}
+procedure hints_manage(win: PWindow );
+procedure hints_unmanage(win: PWindow );
+procedure hints_map(win: PWindow );
+procedure hints_unmap(win: PWindow);
+procedure hints_withdraw(win: PWindow );
+procedure hints_activate(win: PWindow );
+procedure hints_deactivate(win: PWindow );
+procedure hints_move(win: PWindow );
+procedure hints_resize(win: PWindow );
+procedure hints_moveresize(win: PWindow );
+procedure hints_clientmessage(win: PWindow; ep: PXClientMessageEvent);
+procedure hints_propertynotify(win: PWindow; ep: PXPropertyEvent);
+function hints_delete(win: PWindow): Integer;
+procedure hints_restack();
 
 implementation
 
@@ -138,160 +140,162 @@ uses icccm;
 extern struct hints ewmh_hints;
 #endif}
 
-//static struct hints *hints[] = {
-//	&icccm_hints,
+var
+  vhints: array of TWMHints;
 
 //#if CONFIG_EWMH
 //	&ewmh_hints,
 //#endif
-//};
 
 procedure hints_init();
 var
 	i: Integer;
 begin
-	for i := 0 to Length(hints) - 1 do
- 		if (hints[i]^.init != nil)
-			hints[i]^.init();
+        SetLength(vhints, 1);
+        vhints[0] := icccm_hints;
+
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].init <> nil) then
+			vhints[i].init();
 end;
 
-procedure hints_fini()
+procedure hints_fini();
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.fini != nil)
-			hints[i]^.fini();
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].fini <> nil) then
+			vhints[i].fini();
 end;
 
-procedure hints_manage(struct window *win)
+procedure hints_manage(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.manage != nil)
-			hints[i]^.manage(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].manage <> nil) then
+			vhints[i].manage(win);
 end;
 
-procedure hints_unmanage(struct window *win)
+procedure hints_unmanage(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.unmanage != nil)
-			hints[i]^.unmanage(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].unmanage <> nil) then
+			vhints[i].unmanage(win);
 end;
 
-procedure hints_map(struct window *win)
+procedure hints_map(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.map != nil)
-			hints[i]^.map(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].map <> nil) then
+			vhints[i].map(win);
 end;
 
-procedure hints_unmap(struct window *win)
+procedure hints_unmap(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.unmap != nil)
-			hints[i]^.unmap(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].unmap <> nil) then
+			vhints[i].unmap(win);
 end;
 
-procedure hints_withdraw(struct window *win)
+procedure hints_withdraw(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.withdraw != nil)
-			hints[i]^.withdraw(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].withdraw <> nil) then
+			vhints[i].withdraw(win);
 end;
 
-procedure hints_activate(struct window *win)
+procedure hints_activate(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.activate != nil)
-			hints[i]^.activate(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].activate <> nil) then
+			vhints[i].activate(win);
 end;
 
-procedure hints_deactivate(struct window *win)
-var
-	int i;
-
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.deactivate != nil)
-			hints[i]^.deactivate(win);
-end;
-
-procedure hints_move(struct window *win)
+procedure hints_deactivate(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.move != nil)
-			hints[i]^.move(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].deactivate <> nil) then
+			vhints[i].deactivate(win);
 end;
 
-procedure hints_resize(struct window *win)
+procedure hints_move(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.resize != nil)
-			hints[i]^.resize(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].move <> nil) then
+			vhints[i].move(win);
 end;
 
-procedure hints_moveresize(struct window *win)
+procedure hints_resize(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.moveresize != nil)
-			hints[i]^.moveresize(win);
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].resize <> nil) then
+			vhints[i].resize(win);
 end;
 
-procedure hints_clientmessage(struct window *win, XClientMessageEvent *ep)
+procedure hints_moveresize(win: PWindow);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.clientmessage != nil)
-			if (hints[i]^.clientmessage(win, ep))
-				return;
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].moveresize <> nil) then
+			vhints[i].moveresize(win);
 end;
 
-procedure hints_propertynotify(struct window *win, XPropertyEvent *ep)
+procedure hints_clientmessage(win: PWindow; ep: PXClientMessageEvent);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.propertynotify != nil)
-			if (hints[i]^.propertynotify(win, ep))
-				return;
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].clientmessage <> nil) then
+                        if vhints[i].clientmessage(win, ep) <> 0 then Exit;
 end;
 
-int hints_delete(struct window *win)
+procedure hints_propertynotify(win: PWindow; ep: PXPropertyEvent);
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.delete != nil)
-			if (hints[i]^.delete(win))
-				return 1;
-	return 0;
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].propertynotify <> nil) then
+                        if vhints[i].propertynotify(win, ep) <> 0 then Exit;
+end;
+
+function hints_delete(win: PWindow): Integer;
+var
+	i: Integer;
+begin
+	Result := 1;
+
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].delete <> nil) then
+                        if vhints[i].delete(win) <> 0 then Exit;
+
+	Result := 0;
 end;
 
 procedure hints_restack();
 var
 	i: Integer;
 begin
-	for (i = 0; i < NELEM(hints); i++)
-		if (hints[i]^.restack != nil)
-			hints[i]^.restack();
+	for i := 0 to Length(vhints) - 1 do
+ 		if (vhints[i].restack <> nil) then
+                        vhints[i].restack();
 end;
 
 end.

@@ -12,7 +12,7 @@
       <MainUnit Value="0"/>
       <IconPath Value="./"/>
       <TargetFileExt Value=""/>
-      <ActiveEditorIndexAtStart Value="8"/>
+      <ActiveEditorIndexAtStart Value="4"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -31,15 +31,15 @@
         <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <Units Count="39">
+    <Units Count="40">
       <Unit0>
         <Filename Value="fpwm.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="fpwm"/>
-        <CursorPos X="18" Y="35"/>
+        <CursorPos X="14" Y="43"/>
         <TopLine Value="14"/>
         <EditorIndex Value="0"/>
-        <UsageCount Value="37"/>
+        <UsageCount Value="39"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
@@ -52,10 +52,10 @@
       <Unit2>
         <Filename Value="lib.pas"/>
         <UnitName Value="lib"/>
-        <CursorPos X="5" Y="243"/>
+        <CursorPos X="23" Y="218"/>
         <TopLine Value="208"/>
         <EditorIndex Value="9"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="18"/>
         <Loaded Value="True"/>
       </Unit2>
       <Unit3>
@@ -64,16 +64,16 @@
         <CursorPos X="5" Y="261"/>
         <TopLine Value="226"/>
         <EditorIndex Value="6"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="18"/>
         <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="icccm.pas"/>
         <UnitName Value="icccm"/>
-        <CursorPos X="1" Y="62"/>
-        <TopLine Value="48"/>
+        <CursorPos X="19" Y="77"/>
+        <TopLine Value="61"/>
         <EditorIndex Value="8"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="18"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
@@ -88,7 +88,7 @@
         <CursorPos X="11" Y="34"/>
         <TopLine Value="31"/>
         <EditorIndex Value="10"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="18"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit6>
@@ -109,20 +109,20 @@
       <Unit9>
         <Filename Value="/usr/share/fpcsrc/packages/extra/x11/x.pp"/>
         <UnitName Value="x"/>
-        <CursorPos X="18" Y="87"/>
-        <TopLine Value="71"/>
+        <CursorPos X="4" Y="57"/>
+        <TopLine Value="41"/>
         <EditorIndex Value="7"/>
-        <UsageCount Value="16"/>
+        <UsageCount Value="17"/>
         <Loaded Value="True"/>
       </Unit9>
       <Unit10>
         <Filename Value="main.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="main"/>
-        <CursorPos X="8" Y="97"/>
-        <TopLine Value="90"/>
+        <CursorPos X="31" Y="145"/>
+        <TopLine Value="129"/>
         <EditorIndex Value="4"/>
-        <UsageCount Value="35"/>
+        <UsageCount Value="37"/>
         <Loaded Value="True"/>
       </Unit10>
       <Unit11>
@@ -161,8 +161,8 @@
       </Unit15>
       <Unit16>
         <Filename Value="converted/global.h"/>
-        <CursorPos X="16" Y="49"/>
-        <TopLine Value="30"/>
+        <CursorPos X="15" Y="47"/>
+        <TopLine Value="14"/>
         <UsageCount Value="10"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit16>
@@ -208,7 +208,7 @@
         <CursorPos X="40" Y="377"/>
         <TopLine Value="368"/>
         <EditorIndex Value="5"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="16"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit23>
@@ -225,7 +225,7 @@
         <CursorPos X="1" Y="47"/>
         <TopLine Value="28"/>
         <EditorIndex Value="2"/>
-        <UsageCount Value="13"/>
+        <UsageCount Value="14"/>
         <Loaded Value="True"/>
       </Unit25>
       <Unit26>
@@ -248,7 +248,7 @@
         <CursorPos X="6" Y="358"/>
         <TopLine Value="274"/>
         <EditorIndex Value="3"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="13"/>
         <Loaded Value="True"/>
       </Unit28>
       <Unit29>
@@ -306,140 +306,147 @@
       <Unit37>
         <Filename Value="hints.pas"/>
         <UnitName Value="hints"/>
-        <CursorPos X="1" Y="37"/>
-        <TopLine Value="34"/>
+        <CursorPos X="1" Y="299"/>
+        <TopLine Value="270"/>
         <EditorIndex Value="1"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit37>
       <Unit38>
         <Filename Value="converted/hints.h"/>
         <CursorPos X="1" Y="27"/>
-        <TopLine Value="1"/>
+        <TopLine Value="77"/>
         <UsageCount Value="10"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit38>
+      <Unit39>
+        <Filename Value="converted/icccm.c"/>
+        <CursorPos X="1" Y="124"/>
+        <TopLine Value="162"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit39>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="hints.pas"/>
-        <Caret Line="298" Column="1" TopLine="266"/>
+        <Caret Line="132" Column="45" TopLine="116"/>
       </Position1>
       <Position2>
         <Filename Value="hints.pas"/>
-        <Caret Line="151" Column="1" TopLine="138"/>
+        <Caret Line="166" Column="12" TopLine="150"/>
       </Position2>
       <Position3>
         <Filename Value="hints.pas"/>
-        <Caret Line="155" Column="3" TopLine="123"/>
+        <Caret Line="169" Column="1" TopLine="146"/>
       </Position3>
       <Position4>
         <Filename Value="hints.pas"/>
-        <Caret Line="153" Column="28" TopLine="137"/>
+        <Caret Line="172" Column="1" TopLine="156"/>
       </Position4>
       <Position5>
         <Filename Value="hints.pas"/>
-        <Caret Line="8" Column="4" TopLine="1"/>
+        <Caret Line="271" Column="67" TopLine="242"/>
       </Position5>
       <Position6>
         <Filename Value="hints.pas"/>
-        <Caret Line="153" Column="28" TopLine="137"/>
+        <Caret Line="175" Column="12" TopLine="159"/>
       </Position6>
       <Position7>
         <Filename Value="hints.pas"/>
-        <Caret Line="35" Column="1" TopLine="17"/>
+        <Caret Line="178" Column="1" TopLine="159"/>
       </Position7>
       <Position8>
         <Filename Value="hints.pas"/>
-        <Caret Line="153" Column="28" TopLine="137"/>
+        <Caret Line="184" Column="1" TopLine="162"/>
       </Position8>
       <Position9>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="65" Column="29" TopLine="50"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="186" Column="26" TopLine="170"/>
       </Position9>
       <Position10>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="46" Column="1" TopLine="30"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="193" Column="12" TopLine="177"/>
       </Position10>
       <Position11>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="43" Column="1" TopLine="29"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="196" Column="1" TopLine="176"/>
       </Position11>
       <Position12>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="46" Column="1" TopLine="30"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="202" Column="12" TopLine="186"/>
       </Position12>
       <Position13>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="78" Column="4" TopLine="46"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="214" Column="1" TopLine="189"/>
       </Position13>
       <Position14>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="65" Column="1" TopLine="49"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="220" Column="12" TopLine="204"/>
       </Position14>
       <Position15>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="83" Column="1" TopLine="58"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="230" Column="20" TopLine="204"/>
       </Position15>
       <Position16>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="244" Column="5" TopLine="212"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="227" Column="12" TopLine="211"/>
       </Position16>
       <Position17>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="75" Column="16" TopLine="59"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="238" Column="12" TopLine="222"/>
       </Position17>
       <Position18>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="54" Column="9" TopLine="28"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="241" Column="1" TopLine="222"/>
       </Position18>
       <Position19>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="77" Column="2" TopLine="61"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="247" Column="12" TopLine="231"/>
       </Position19>
       <Position20>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="87" Column="2" TopLine="61"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="265" Column="1" TopLine="254"/>
       </Position20>
       <Position21>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="77" Column="64" TopLine="61"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="261" Column="43" TopLine="245"/>
       </Position21>
       <Position22>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="79" Column="7" TopLine="63"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="271" Column="45" TopLine="245"/>
       </Position22>
       <Position23>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="85" Column="16" TopLine="63"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="265" Column="12" TopLine="249"/>
       </Position23>
       <Position24>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="79" Column="8" TopLine="63"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="277" Column="1" TopLine="254"/>
       </Position24>
       <Position25>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="61" Column="22" TopLine="52"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="279" Column="46" TopLine="263"/>
       </Position25>
       <Position26>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="79" Column="8" TopLine="63"/>
+        <Filename Value="hints.pas"/>
+        <Caret Line="283" Column="12" TopLine="267"/>
       </Position26>
       <Position27>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="87" Column="11" TopLine="78"/>
+        <Filename Value="fpwm.pas"/>
+        <Caret Line="35" Column="18" TopLine="11"/>
       </Position27>
       <Position28>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="80" Column="10" TopLine="64"/>
+        <Filename Value="fpwm.pas"/>
+        <Caret Line="43" Column="3" TopLine="14"/>
       </Position28>
       <Position29>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="87" Column="23" TopLine="64"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="145" Column="10" TopLine="122"/>
       </Position29>
       <Position30>
-        <Filename Value="icccm.pas"/>
-        <Caret Line="80" Column="10" TopLine="64"/>
+        <Filename Value="main.pas"/>
+        <Caret Line="629" Column="16" TopLine="617"/>
       </Position30>
     </JumpHistory>
   </ProjectOptions>

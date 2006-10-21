@@ -51,37 +51,44 @@ uses
   { Units from fpwm }
   hints,
   { XLib units }
-  X, Xlib, Xutil;
-
-{static Atom WM_CHANGE_STATE;
-static Atom WM_DELETE_WINDOW;
-static Atom WM_PROTOCOLS;
-static Atom WM_STATE;}
-
-procedure icccm_init();
-{static void icccm_manage(struct window *);
-static void icccm_map(struct window *);
-static void icccm_unmap(struct window *);
-static void icccm_withdraw(struct window *);
-static void icccm_move(struct window *);
-static int icccm_clientmessage(struct window *, XClientMessageEvent *);
-static int icccm_propertynotify(struct window *, XPropertyEvent *);
-static int icccm_delete(struct window *);
-static int knowsproto(struct window *, Atom);
-static void sendmesg(struct window *, Atom, long);
-static void sendconf(struct window *);
-static void setwmstate(struct window *, long);}
+  X, Xlib, Xutil, XAtom;
 
 var
-  icccm_hints: TWMHHints = (
+  WM_CHANGE_STATE: TAtom;
+  WM_DELETE_WINDOW: TAtom;
+  WM_PROTOCOLS: TAtom;
+  WM_STATE: TAtom;
+
+procedure icccm_init();
+procedure icccm_manage(win: PWindow);
+procedure icccm_map(win: PWindow);
+procedure icccm_unmap(win: PWindow);
+procedure icccm_withdraw(win: PWindow);
+procedure icccm_move(win: PWindow);
+function icccm_clientmessage(win: PWindow; ep: PXClientMessageEvent): Integer;
+function icccm_propertynotify(win: PWindow; ep: PXPropertyEvent): Integer;
+function icccm_delete(win: PWindow): Integer;
+function knowsproto(win: PWindow; proto: TAtom): Integer;
+procedure sendmesg(win: PWindow; type_: TAtom; value: Integer);
+procedure sendconf(win: PWindow);
+procedure setwmstate(win: PWindow; state: Integer);
+
+var
+  icccm_hints: TWMHints = (
 	name: 'Inter-Client Communication Conventions Manual (ICCCM)';
 
 	init: @icccm_init;
+	fini: nil;
 	manage: @icccm_manage;
+        unmanage: nil;
 	map: @icccm_map;
 	unmap: @icccm_unmap;
 	withdraw: @icccm_withdraw;
+        activate: nil;
+        deactivate: nil;
 	move: @icccm_move;
+        resize: nil;
+        moveresize: nil;
 	clientmessage: @icccm_clientmessage;
 	propertynotify: @icccm_propertynotify;
 	delete: @icccm_delete;
@@ -89,157 +96,165 @@ var
 
 implementation
 
-procedure icccm_init(void)
+uses
+  { Units from fpwm }
+  main;
+
+procedure icccm_init();
 begin
-	WM_CHANGE_STATE = XInternAtom(display, "WM_CHANGE_STATE", False);
-	WM_DELETE_WINDOW = XInternAtom(display, "WM_DELETE_WINDOW", False);
-	WM_PROTOCOLS = XInternAtom(display, "WM_PROTOCOLS", False);
-	WM_STATE = XInternAtom(display, "WM_STATE", False);
+	WM_CHANGE_STATE := XInternAtom(display, 'WM_CHANGE_STATE', False);
+	WM_DELETE_WINDOW := XInternAtom(display, 'WM_DELETE_WINDOW', False);
+	WM_PROTOCOLS := XInternAtom(display, 'WM_PROTOCOLS', False);
+	WM_STATE := XInternAtom(display, 'WM_STATE', False);
 end;
 
-procedure icccm_manage(struct window *win)
+procedure icccm_manage(win: PWindow);
 begin
 	sendconf(win);
 end;
 
-procedure icccm_map(struct window *win)
+procedure icccm_map(win: PWindow);
 begin
 	setwmstate(win, NormalState);
 end;
 
-procedure icccm_unmap(struct window *win)
+procedure icccm_unmap(win: PWindow);
 begin
 	setwmstate(win, IconicState);
 end;
 
-procedure icccm_withdraw(struct window *win)
+procedure icccm_withdraw(win: PWindow);
 begin
 	setwmstate(win, WithdrawnState);
 end;
 
-procedure icccm_move(struct window *win)
+procedure icccm_move(win: PWindow);
 begin
 	sendconf(win);
 end;
 
-function icccm_clientmessage(struct window *win, XClientMessageEvent *ep): Integer;
+function icccm_clientmessage(win: PWindow; ep: PXClientMessageEvent): Integer;
 begin
-	if (ep->message_type == WM_CHANGE_STATE && ep->format == 32) {
-		switch (ep->data.l[0]) {
-		case IconicState:
-			window_unmap(win);
-			return 1;
-		case NormalState:
-			window_map(win);
-			return 1;
-		}
-	}
-	return 0;
+	Result := 0;
+
+	if (ep^.message_type = WM_CHANGE_STATE) and (ep^.format = 32) then
+        begin
+		case ep^.data.l[0] of
+		 IconicState:
+                 begin
+//			window_unmap(win);
+			Result := 1;
+                 end;
+   	     	 NormalState:
+                 begin
+//			window_map(win);
+			Result := 1;
+                 end;
+                end;
+        end;
 end;
 
-function icccm_propertynotify(struct window *win, XPropertyEvent *ep): Integer;
+function icccm_propertynotify(win: PWindow; ep: PXPropertyEvent): Integer;
 begin
-	switch (ep->atom) {
-	case XA_WM_NAME:
-		if (ep->state != PropertyDelete)
+	Result := 1;
+
+{	case (ep^.atom) of
+	 XA_WM_NAME:
+		if (ep^.state <> PropertyDelete) then
 			window_fetchname(win);
-		return 1;
-	case XA_WM_ICON_NAME:
-		if (ep->state != PropertyDelete)
+	 XA_WM_ICON_NAME:
+		if (ep^.state <> PropertyDelete) then
 			window_fetchiconname(win);
-		return 1;
-	case XA_WM_NORMAL_HINTS:
+	 XA_WM_NORMAL_HINTS:
 		window_fetchwmnormalhints(win);
-		return 1;
-	case XA_WM_HINTS:
+	 XA_WM_HINTS:
 		window_fetchwmhints(win);
-		return 1;
-	case XA_WM_TRANSIENT_FOR:
+	 XA_WM_TRANSIENT_FOR:
 		window_fetchwmtransientfor(win);
-		return 1;
-	}
-	return 0;
+        else
+        	Result := 0;
+        end;}
 end;
 
-function icccm_delete(win: PTWindow): Integer;
+function icccm_delete(win: PWindow): Integer;
 begin
-	if (knowsproto(win, WM_DELETE_WINDOW)) then
+	if (knowsproto(win, WM_DELETE_WINDOW) <> 0) then
         begin
 		sendmesg(win, WM_PROTOCOLS, WM_DELETE_WINDOW);
-		return 1;
+		Result := 1;
         end
         else Result := 0;
 end;
 
-function knowsproto(win: PTWindow; Atom proto): Integer;
-begin
-	Atom *protocols;
-	int i, n;
-	int found;
+function knowsproto(win: PWindow; proto: TAtom): Integer;
 var
-	found = 0;
-	clerr();
-	if (XGetWMProtocols(display, win->client, &protocols, &n)) {
-		for (i = 0; !found && i < n; i++) {
+	protocols: PAtom;
+	i, n, found: Integer;
+begin
+	found := 0;
+//	clerr();
+{	if (XGetWMProtocols(display, win^.client, @protocols, @n)) then
+        begin
+		for (i = 0; !found && i < n; i++) then
 			if (protocols[i] == proto)
 				found = 1;
-		}
+                end
 		if (protocols != NULL)
 			XFree(protocols);
-	}
-	sterr();
-	return found;
+        end;}
+//	sterr();
+	Result := found;
 end;
 
-procedure sendmesg(win: PTWindow; Atom type, long value)
+procedure sendmesg(win: PWindow; type_: TAtom; value: Integer);
 var
-	XEvent ev;
+	ev: TXEvent;
 begin
-	memset(&ev, 0, sizeof ev);
-	ev.xclient.type = ClientMessage;
-	ev.xclient.window = win->client;
-	ev.xclient.message_type = type;
-	ev.xclient.format = 32;
-	ev.xclient.data.l[0] = value;
-	ev.xclient.data.l[1] = CurrentTime;
-	clerr();
-	XSendEvent(display, win->client, False, 0L, &ev);
-	sterr();
+	FillChar(ev, sizeof(ev), #0);
+	ev.xclient._type := ClientMessage;
+//	ev.xclient.window := win^.client;
+	ev.xclient.message_type := type_;
+	ev.xclient.format := 32;
+	ev.xclient.data.l[0] := value;
+	ev.xclient.data.l[1] := CurrentTime;
+//	clerr();
+//	XSendEvent(display, win^.client, False, 0L, &ev);
+//	sterr();
 end;
 
-procedure sendconf(win: PTWindow);
+procedure sendconf(win: PWindow);
 var
-	XConfigureEvent conf;
+	conf: TXConfigureEvent;
 begin
-	conf.type = ConfigureNotify;
-	conf.event = win->client;
-	conf.window = win->client;
-	conf.x = X(win) + border_width - win->cborder;
-	conf.y = Y(win) + border_width + button_size + innerborder_width
-	    - win->cborder;
-	conf.width = WIDTH(win) - 2 * border_width;
-	conf.height = HEIGHT(win)
-	    - (2 * border_width + button_size + innerborder_width);
-	conf.border_width = win->cborder;
-	conf.above = None;
-	conf.override_redirect = False;
+	conf._type := ConfigureNotify;
+//	conf.event := win^.client;
+//	conf.window := win^.client;
+//	conf.x := X(win) + border_width - win->cborder;
+//	conf.y := Y(win) + border_width + button_size + innerborder_width
+//	    - win->cborder;
+//	conf.width := WIDTH(win) - 2 * border_width;
+//	conf.height := HEIGHT(win)
+//	    - (2 * border_width + button_size + innerborder_width);
+//	conf.border_width := win->cborder;
+//	conf.above := None;
+//	conf.override_redirect := False;
 
-	clerr();
-	XSendEvent(display, win->client, False, StructureNotifyMask,
-	    (XEvent *)&conf);
-	sterr();
+//	clerr();
+//	XSendEvent(display, win->client, False, StructureNotifyMask,
+//	    PXEvent(@&conf));
+//	sterr();
 end;
 
-procedure setwmstate(win: PTWindow; state: Integer);
+procedure setwmstate(win: PWindow; state: Integer);
 var
 	data: array[0..1] of Integer;
 begin
-	data[0] = state;
-	data[1] = (long)None;
-	clerr();
-	XChangeProperty(display, win->client, WM_STATE, WM_STATE, 32,
-	    PropModeReplace, (unsigned char *)data, 2);
-	sterr();
+	data[0] := state;
+	data[1] := None;
+//	clerr();
+//	XChangeProperty(display, win->client, WM_STATE, WM_STATE, 32,
+//	    PropModeReplace, (unsigned char *)data, 2);
+//	sterr();
 end;
 
 end.

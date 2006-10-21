@@ -140,9 +140,9 @@ static void mkcolor(struct color *, const char *);
 static void initres(int *, char *[]);
 static void loadfont(void);}
 procedure init;
-{static void mainloop(void);
-static void initclients(void);
-static void quit(int);}
+procedure mainloop();
+procedure initclients();
+procedure quit(status: Integer);
 
 implementation
 
