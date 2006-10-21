@@ -1,12 +1,12 @@
-/*
+{
  * grab.c - key/button grabbing
  *
  * The routines in this files are equivalent to their X counterparts,
  * except that they also grab/ungrab all combinations of Num Lock,
  * Caps Lock and Scroll Lock.
- */
+ }
 
-/*
+{
  * Copyright (c) 2006 Johan Veenhuizen
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -27,83 +27,115 @@
  * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+ }
+unit grab;
 
-#include <X11/keysym.h>
+{$mode objfpc}{$H+}
+
+interface
+
+{#include <X11/keysym.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-#include "lib.h"
+#include "lib.h"}
 
-/*
+uses
+  { Free Pascal Units }
+  SysUtils, Unix, BaseUnix, UnixType,
+  { Units from fpwm }
+  { XLib units }
+  X, Xlib, Xutil, keysym;
+
+procedure grabkey(display: PDisplay; keycode: Integer; modifiers: Cardinal;
+    grab_window: TWindow; owner_events: Boolean; pointer_mode, keyboard_mode: Integer);
+procedure ungrabkey(display: PDisplay; keycode: Integer; modifiers: Cardinal;
+    grab_window: TWindow);
+procedure grabbutton(display: PDisplay; button, modifiers: Cardinal;
+    grab_window: TWindow; owner_events: Boolean; event_mask: Cardinal;
+    pointer_mode, keyboard_mode: Integer; confine_to: TWindow; cursor: TCursor);
+procedure ungrabbutton(display: PDisplay; button, modifiers: Cardinal;
+    grab_window: TWindow);
+
+implementation
+
+{
  * All possible combinations of the lock masks.
- */
-static unsigned lockmasks[] = {
+ }
+var
+  lockmasks: array[0..7] of Cardinal = (
 	0,
-	LockMask,	/* Caps Lock */
-	Mod2Mask,	/* Num Lock */
-	Mod5Mask,	/* Scroll Lock */
-	LockMask | Mod2Mask,
-	LockMask | Mod5Mask,
-	Mod2Mask | Mod5Mask,
-	LockMask | Mod2Mask | Mod5Mask
-};
+	LockMask,	{ Caps Lock   }
+	Mod2Mask,	{ Num Lock    }
+	Mod5Mask,	{ Scroll Lock }
+	LockMask or Mod2Mask,
+	LockMask or Mod5Mask,
+	Mod2Mask or Mod5Mask,
+	LockMask or Mod2Mask or Mod5Mask
+  );
 
-/*
+{
  * XGrabKey()
- */
-void grabkey(Display *display, int keycode, unsigned modifiers,
-    Window grab_window, Bool owner_events, int pointer_mode, int keyboard_mode)
-{
-	int i;
-
-	for (i = 0; i < NELEM(lockmasks); i++) {
-		XGrabKey(display, keycode, lockmasks[i] | modifiers,
+ }
+procedure grabkey(display: PDisplay; keycode: Integer; modifiers: Cardinal;
+    grab_window: TWindow; owner_events: Boolean; pointer_mode, keyboard_mode: Integer);
+var
+	i: Integer;
+begin
+	for i := 0 to Length(lockmasks) - 1 do
+        begin
+		XGrabKey(display, keycode, lockmasks[i] or modifiers,
 		    grab_window, owner_events, pointer_mode, keyboard_mode);
-	}
-}
+        end;
+end;
 
-/*
+{
  * XUngrabKey()
- */
-void ungrabkey(Display *display, int keycode, unsigned modifiers,
-    Window grab_window)
-{
-	int i;
-
-	for (i = 0; i < NELEM(lockmasks); i++) {
-		XUngrabKey(display, keycode, lockmasks[i] | modifiers,
+ }
+procedure ungrabkey(display: PDisplay; keycode: Integer; modifiers: Cardinal;
+    grab_window: TWindow);
+var
+	i: Integer;
+begin
+	for i := 0 to Length(lockmasks) - 1 do
+        begin
+		XUngrabKey(display, keycode, lockmasks[i] or modifiers,
 		    grab_window);
-	}
-}
+        end;
+end;
 
-/*
- * XGrabButton()
- */
-void grabbutton(Display *display, unsigned button, unsigned modifiers,
-    Window grab_window, Bool owner_events, unsigned event_mask,
-    int pointer_mode, int keyboard_mode, Window confine_to, Cursor cursor)
 {
-	int i;
-
-	for (i = 0; i < NELEM(lockmasks); i++) {
+ * XGrabButton()
+ }
+procedure grabbutton(display: PDisplay; button, modifiers: Cardinal;
+    grab_window: TWindow; owner_events: Boolean; event_mask: Cardinal;
+    pointer_mode, keyboard_mode: Integer; confine_to: TWindow; cursor: TCursor);
+var
+	i: Integer;
+begin
+	for i := 0 to Length(lockmasks) - 1 do
+        begin
 		XGrabButton(display, button,
-		    lockmasks[i] | modifiers,
+		    lockmasks[i] or modifiers,
 		    grab_window, owner_events, event_mask, pointer_mode,
 		    keyboard_mode, confine_to, cursor);
-	}
-}
+        end;
+end;
 
-/*
- * XUngrabButton()
- */
-void ungrabbutton(Display *display, unsigned button, unsigned modifiers,
-    Window grab_window)
 {
-	int i;
-
-	for (i = 0; i < NELEM(lockmasks); i++) {
-		XUngrabButton(display, button, lockmasks[i] | modifiers,
+ * XUngrabButton()
+ }
+procedure ungrabbutton(display: PDisplay; button, modifiers: Cardinal;
+    grab_window: TWindow);
+var
+	i: Integer;
+begin
+	for i := 0 to Length(lockmasks) - 1 do
+        begin
+		XUngrabButton(display, button, lockmasks[i] or modifiers,
 		    grab_window);
-	}
-}
+        end;
+end;
+
+end.
+

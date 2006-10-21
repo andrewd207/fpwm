@@ -26,6 +26,8 @@
  }
 unit hints;
 
+{$mode objfpc}{$H+}
+
 interface
 
 {#include <X11/Xlib.h>

@@ -98,8 +98,8 @@ procedure putimage(display: PDisplay; d: TDrawable; gc: TGC; image: PWMImage; x,
 {int stringwidth(const char *str);
 char *stringfit(char *str, int width);
 
-void debug(const char *, ...);
-const char *eventname(int);}
+void debug(const char *, ...);}
+function eventname(type_: Integer): PChar;
 
 implementation
 

@@ -17,9 +17,9 @@ interface
 
 uses
   { Free Pascal Units }
-  SysUtils, Unix, BaseUnix, UnixType, //libc,
+  SysUtils, Unix, BaseUnix, UnixType,
   { Units from fpwm }
-  button, lib,
+  button, lib, menu,
   { XLib units }
   X, Xlib, Xutil, Xresource, keysym;
 
@@ -34,7 +34,7 @@ var
   screen: Integer;
   root: TWindow;
 
-//  winmenu: PWMmenu;
+  winmenu: PWMmenu;
 
   font: PXFontStruct;
 
@@ -135,10 +135,10 @@ var
   noerr: Integer = 0;
 
 procedure sighandler(signal: longint; info: psiginfo; context: psigcontext); cdecl;
-{static int waitevent(void);
-static void mkcolor(struct color *, const char *);
-static void initres(int *, char *[]);
-static void loadfont(void);}
+function waitevent(): Integer;
+procedure mkcolor(color: PWMColor; const name: string);
+procedure initres();
+procedure loadfont();
 procedure init;
 procedure mainloop();
 procedure initclients();
@@ -148,7 +148,7 @@ implementation
 
 uses
   { Units from fpwm }
-  widget;
+  grab, widget;
 
 function error_handler(dpy: PDisplay; err: PXErrorEvent): Integer; cdecl;
 var
@@ -411,7 +411,9 @@ begin
         end;
 
 	XSetErrorHandler(@error_handler);
-	if not (display = XOpenDisplay(nil)) then
+ 
+        display := XOpenDisplay(nil);
+	if (display = nil) then
         begin
 		WriteLn('can''t open display');
 		Halt(1);
@@ -431,10 +433,10 @@ begin
 	    SubstructureRedirectMask or SubstructureNotifyMask or
 	    KeyPressMask or KeyReleaseMask);
 
-{	grabkey(display, XKeysymToKeycode(display, XK_Tab), Mod1Mask,
+	grabkey(display, XKeysymToKeycode(display, XK_Tab), Mod1Mask,
 	    root, True, GrabModeAsync, GrabModeAsync);
 	grabkey(display, XKeysymToKeycode(display, XK_Tab),
-	    ShiftMask | Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
+	    ShiftMask or Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
 	grabkey(display, XKeysymToKeycode(display, XK_Return), Mod1Mask,
 	    root, True, GrabModeAsync, GrabModeAsync);
 	grabkey(display, XKeysymToKeycode(display, XK_Escape), Mod1Mask,
@@ -442,7 +444,7 @@ begin
 	grabkey(display, XKeysymToKeycode(display, XK_BackSpace), Mod1Mask,
 	    root, True, GrabModeAsync, GrabModeAsync);
 	grabkey(display, XKeysymToKeycode(display, XK_BackSpace),
-	    ShiftMask | Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);}
+	    ShiftMask or Mod1Mask, root, True, GrabModeAsync, GrabModeAsync);
 
 	loadfont();
 

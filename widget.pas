@@ -40,8 +40,6 @@ interface
 uses
   { Free Pascal Units }
   SysUtils,
-  { Units from fpwm }
-  main,
   { XLib units }
   X, Xlib, Xutil, Xresource;
 
@@ -81,18 +79,23 @@ type
 #define MAPPED(ptr)	(((struct widget *)(ptr))->mapped)}
 
 procedure widget_init();
-{procedure widget_create(struct widget *, CLASS, Window, int, int, int, int);
-procedure widget_resize(struct widget *, int, int);
-procedure widget_move(struct widget *, int, int);
-procedure widget_moveresize(struct widget *, int, int, int, int);
-procedure widget_map(struct widget *);
-procedure widget_unmap(struct widget *);
-procedure widget_destroy(struct widget *);
-struct widget *widget_find(Window, CLASS);
-procedure widget_deletecontext(Window);
-procedure widget_savecontext(struct widget *, Window);}
+procedure widget_create(widget: PWMWidget; _class: TWMClass; xparent: TWindow;
+    x, y, width, height: Integer);
+procedure widget_savecontext(widget: PWMWidget; xwindow: TWindow);
+function widget_find(xwindow: TWindow; _CLASS: TWMClass): PWMWidget;
+procedure widget_resize(widget: PWMWidget; width, height: Integer);
+procedure widget_move(widget: PWMWidget; x, y: Integer);
+procedure widget_moveresize(widget: PWMWidget; x, y, width, height: Integer);
+procedure widget_map(widget: PWMWidget);
+procedure widget_unmap(widget: PWMWidget);
+procedure widget_destroy(widget: PWMWidget);
+procedure widget_deletecontext(xwindow: TWindow);
 
 implementation
+
+uses
+  { Units from fpwm }
+  main;
 
 var
   wmcontext: TXContext;

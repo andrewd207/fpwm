@@ -32,13 +32,13 @@ uses
   { Free Pascal Units }
   SysUtils,
   { Units from fpwm }
-  button, hints, lib, main, widget;
+  button, hints, lib, main, menu, widget;
 
 begin
   init();
   widget_init();
 //  window_init();
-//  winmenu := menu_create();
+  winmenu := menu_create();
   hints_init();
   initclients();
   mainloop();

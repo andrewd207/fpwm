@@ -34,7 +34,7 @@ uses
   { Free Pascal Units }
   SysUtils,
   { Units from fpwm }
-  lib,
+  lib, widget,
   { XLib units }
   X, XLib, XUtil;
 
@@ -50,8 +50,6 @@ uses
 type
   handler_t = procedure (param: PWindow);
 
-  TWMwidget = Pointer;
-  
   TWMbutton = record
         widget: TWMwidget;
 	window: PWindow;
@@ -68,13 +66,14 @@ type
   
   PWMWidget = Pointer;
 
+
+procedure button_repaint(self: PWMButton);
+procedure buttonevent(widget: PWMWidget; ep: PXEvent);
 {struct button *button_create(struct window *, int, int, int, int);
 void button_destroy(struct button *);
 void button_move(struct button *, int, int);
-void button_repaint(struct button *);
 void button_sethandler(struct button *, void (*)(struct window *));
 void button_setimage(struct button *, struct image *);}
-procedure buttonevent(widget: PWMWidget; ep: PXEvent);
 
 implementation
 
@@ -112,16 +111,16 @@ begin
 
 	{ clear }
 	XSetForeground(display, self^.gc, bgpixel);
-//	XFillRectangle(display, self^.pixmap, self^.gc,
-//	    0, 0, WIDTH(self), HEIGHT(self));
+	XFillRectangle(display, self^.pixmap, self^.gc,
+	    0, 0, self^.widget.dim.width, self^.widget.dim.height);
 
 	{ draw }
 	XSetForeground(display, self^.gc, fgpixel);
 	XSetBackground(display, self^.gc, bgpixel);
 	if (self^.image <> nil) then
         begin
-//		x := WIDTH(self) / 2 - self->image->width / 2;
-//		y := HEIGHT(self) / 2 - self->image->height / 2;
+		x := self^.widget.dim.width div 2 - self^.image^.width div 2;
+		y := self^.widget.dim.height div 2 - self^.image^.height div 2;
 		putimage(display, self^.pixmap, self^.gc, self^.image, x, y);
         end;
 
@@ -137,17 +136,17 @@ begin
         end;
         
 	XSetForeground(display, self^.gc, fgpixel);
-//	XDrawLine(display, self^.pixmap, self->gc, 0, 0, WIDTH(self) - 2, 0);
-//	XDrawLine(display, self^.pixmap, self->gc, 0, 1, 0, HEIGHT(self) - 2);
+	XDrawLine(display, self^.pixmap, self^.gc, 0, 0, self^.widget.dim.width - 2, 0);
+	XDrawLine(display, self^.pixmap, self^.gc, 0, 1, 0, self^.widget.dim.height - 2);
 	XSetForeground(display, self^.gc, bgpixel);
-//	XDrawLine(display, self^.pixmap, self^.gc,
-//	    WIDTH(self) - 1, 1, WIDTH(self) - 1, HEIGHT(self) - 1);
-//	XDrawLine(display, self^.pixmap, self^.gc,
-//	    1, HEIGHT(self) - 1, WIDTH(self) - 1, HEIGHT(self) - 1);
+	XDrawLine(display, self^.pixmap, self^.gc,
+	    self^.widget.dim.width - 1, 1, self^.widget.dim.width - 1, self^.widget.dim.height - 1);
+	XDrawLine(display, self^.pixmap, self^.gc,
+	    1, self^.widget.dim.height - 1, self^.widget.dim.width - 1, self^.widget.dim.height - 1);
 
 	{ display }
-//	XCopyArea(display, self->pixmap, XWINDOW(self), self->gc,
-//	    0, 0, WIDTH(self), HEIGHT(self), 0, 0);
+	XCopyArea(display, self^.pixmap, self^.widget.XWINDOW, self^.gc,
+	    0, 0, self^.widget.dim.width, self^.widget.dim.height, 0, 0);
 end;
 
 procedure buttonevent(widget: PWMWidget; ep: PXEvent);
@@ -176,9 +175,9 @@ begin
 	  end;
 	  ButtonRelease:
           begin
-{		docall := ((self^.acting and self^.depressed)
+		docall := ((self^.acting and self^.depressed) <> 0)
 		    and (ep^.xbutton.button = Button1)
-		    and (self^.handler <> nil));}
+		    and (self^.handler <> nil);
 		self^.depressed := 0;
 		self^.acting := 0;
 		button_repaint(self);
@@ -186,11 +185,11 @@ begin
 		if (docall) then
 			self^.handler(self^.window);
 	  end;
-{	  Expose:
-		XCopyArea(display, self^.pixmap, XWINDOW(self),
+	  Expose:
+		XCopyArea(display, self^.pixmap, self^.widget.XWINDOW,
 		    self^.gc, ep^.xexpose.x, ep^.xexpose.y,
 		    ep^.xexpose.width, ep^.xexpose.height,
-		    ep^.xexpose.x, ep^.xexpose.y);}
+		    ep^.xexpose.x, ep^.xexpose.y);
 	  EnterNotify:
           begin
 		if (self^.acting <> 0) then
