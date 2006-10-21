@@ -29,6 +29,8 @@
  }
 unit icccm;
 
+interface
+
 {#include <assert.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,13 +45,21 @@ unit icccm;
 #include "lib.h"
 #include "window.h"}
 
-static Atom WM_CHANGE_STATE;
+uses
+  { Free Pascal Units }
+  SysUtils,
+  { Units from fpwm }
+  hints,
+  { XLib units }
+  X, Xlib, Xutil;
+
+{static Atom WM_CHANGE_STATE;
 static Atom WM_DELETE_WINDOW;
 static Atom WM_PROTOCOLS;
-static Atom WM_STATE;
+static Atom WM_STATE;}
 
-static void icccm_init(void);
-static void icccm_manage(struct window *);
+procedure icccm_init();
+{static void icccm_manage(struct window *);
 static void icccm_map(struct window *);
 static void icccm_unmap(struct window *);
 static void icccm_withdraw(struct window *);
@@ -60,21 +70,24 @@ static int icccm_delete(struct window *);
 static int knowsproto(struct window *, Atom);
 static void sendmesg(struct window *, Atom, long);
 static void sendconf(struct window *);
-static void setwmstate(struct window *, long);
+static void setwmstate(struct window *, long);}
 
-struct hints icccm_hints = {
-	.name = "Inter-Client Communication Conventions Manual (ICCCM)",
+var
+  icccm_hints: TWMHHints = (
+	name: 'Inter-Client Communication Conventions Manual (ICCCM)';
 
-	.init = icccm_init,
-	.manage = icccm_manage,
-	.map = icccm_map,
-	.unmap = icccm_unmap,
-	.withdraw = icccm_withdraw,
-	.move = icccm_move,
-	.clientmessage = icccm_clientmessage,
-	.propertynotify = icccm_propertynotify,
-	.delete = icccm_delete,
-};
+	init: @icccm_init;
+	manage: @icccm_manage;
+	map: @icccm_map;
+	unmap: @icccm_unmap;
+	withdraw: @icccm_withdraw;
+	move: @icccm_move;
+	clientmessage: @icccm_clientmessage;
+	propertynotify: @icccm_propertynotify;
+	delete: @icccm_delete;
+  );
+
+implementation
 
 procedure icccm_init(void)
 begin
@@ -229,3 +242,4 @@ begin
 	sterr();
 end;
 
+end.

@@ -32,7 +32,7 @@ uses
   { Free Pascal Units }
   SysUtils,
   { Units from fpwm }
-  button, lib, main, widget;
+  button, hints, lib, main, widget;
 
 begin
   init();
