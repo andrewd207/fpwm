@@ -34,7 +34,7 @@ uses
   { Free Pascal Units }
   SysUtils,
   { Units from fpwm }
-  lib, widget,
+  lib, widget, window,
   { XLib units }
   X, XLib, XUtil;
 
@@ -48,11 +48,11 @@ uses
 #include "window.h"}
 
 type
-  handler_t = procedure (param: PWindow);
+  handler_t = procedure (param: PWMWindow);
 
   TWMbutton = record
         widget: TWMwidget;
-	window: PWindow;
+	window: PWMWindow;
        	pixmap: TPixmap;
 	gc: TGC;
 	image: PWMimage;
@@ -69,17 +69,17 @@ type
 
 procedure button_repaint(self: PWMButton);
 procedure buttonevent(widget: PWMWidget; ep: PXEvent);
-{struct button *button_create(struct window *, int, int, int, int);
-void button_destroy(struct button *);
-void button_move(struct button *, int, int);
-void button_sethandler(struct button *, void (*)(struct window *));
-void button_setimage(struct button *, struct image *);}
+function button_create(window: PWMWindow; int, int, int, int): PWMButton;
+procedure button_destroy(button: PWMButton);
+procedure button_move(button: PWMButton; x, y: Integer);
+procedure button_sethandler(button: PWMButton; handler: handler_t);
+procedure button_setimage(button: PWMButton; image: PWMImage);
 
 implementation
 
 uses
   { Units from fpwm }
-  main;
+  main, menu;
 
 procedure button_repaint(self: PWMButton);
 var
@@ -87,7 +87,7 @@ var
 	bgpixel, fgpixel: Cardinal;
 	x, y: Integer;
 begin
-{        if window_isfamilyactive(self^.window) then
+        if window_isfamilyactive(self^.window) then
         begin
     	  fg :=  @color_title_active_fg
           bg := @color_title_active_bg
@@ -96,7 +96,7 @@ begin
         begin
           fg := @color_title_inactive_fg;
 	  bg := @color_title_inactive_bg;
-        end;}
+        end;
         
 	if (self^.depressed <> 0) then begin
 		fgpixel := fg^.shadow1;
@@ -163,10 +163,10 @@ begin
                 begin
 			self^.acting := 0;
 			self^.depressed := 0;
-{			if (ep^.xbutton.button = Button3) then
+			if (ep^.xbutton.button = Button3) then
 				menu_popup(winmenu,
 				    ep^.xbutton.x_root, ep^.xbutton.y_root,
-				    ep^.xbutton.button);}
+				    ep^.xbutton.button);
 		end else begin
 			self^.acting := 1;
 			self^.depressed := 1;
@@ -207,19 +207,20 @@ begin
 	end;
 end;
 
-{function button_create(window: PWMWindow; x, y, width, height: Integer): TWMbutton;
+function button_create(window: PWMWindow; x, y, width, height: Integer): TWMbutton;
 var
 	gcval: TXGCValues;
 	bp: PWMButton;
 begin
 	bp := karmen_malloc(sizeof (struct button));
-	widget_create(&bp^.widget, CLASS_BUTTON, XWINDOW(window),
+	widget_create(@bp^.widget, CLASS_BUTTON, window^.XWINDOW,
 	    x, y, width, height);
 
-	bp^.pixmap := XCreatePixmap(display, XWINDOW(bp), WIDTH(bp), HEIGHT(bp),
+	bp^.pixmap := XCreatePixmap(display, bp^.widget.XWINDOW,
+            bp^.widget.dim.width, bp^.widget.dim.height,
 	    DefaultDepth(display, screen));
 	gcval.graphics_exposures = False;
-	bp^.gc := XCreateGC(display, XWINDOW(bp), GCGraphicsExposures, &gcval);
+	bp^.gc := XCreateGC(display, XWINDOW(bp), GCGraphicsExposures, @gcval);
 	bp^.image := nil;
 
 	bp^.window := window;
@@ -228,33 +229,33 @@ begin
 	bp^.hover := 0;
 	bp^.handler := nil;
 	bp^.widget.event := buttonevent;
-	XSelectInput(display, XWINDOW(bp), ButtonPressMask | ButtonReleaseMask
-	    | ExposureMask | EnterWindowMask | LeaveWindowMask);
-	widget_map(&bp^.widget);
+	XSelectInput(display, bp^.widget.XWINDOW, ButtonPressMask or ButtonReleaseMask
+	    or ExposureMask or EnterWindowMask or LeaveWindowMask);
+	widget_map(@bp^.widget);
 	Result := bp;
 end;
 
-procedure button_move(button: TWMbutton; x, y: Integer);
+procedure button_move(button: PWMbutton; x, y: Integer);
 begin
 	widget_move(@button^.widget, x, y);
 end;
 
-procedure button_destroy(struct button *button);
+procedure button_destroy(button: PWMButton);
 begin
 	XFreePixmap(display, button^.pixmap);
 	XFreeGC(display, button^.gc);
 	widget_destroy(@button^.widget);
-	karmen_free(button);
+	FreeMem(button);
 end;
 
-procedure button_sethandler(struct button *button, void (*handler)(struct window *))
+procedure button_sethandler(button: PWMButton; handler: handler_t);
 begin
 	button^.handler := handler;
 end;
 
-procedure button_setimage(struct button *button, struct image *image)
+procedure button_setimage(button: PWMButton; image: PWMImage);
 begin
 	button^.image := image;
-end;}
+end;
 
 end.

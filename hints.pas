@@ -46,13 +46,13 @@ uses
 type
   void_t = procedure;
   
-  window_t = procedure (p1: PWindow);
+  window_t = procedure (p1: PWMWindow);
 
-  clientmessage_t = function (p1: PWindow; p2: PXClientMessageEvent): Integer;
+  clientmessage_t = function (p1: PWMWindow; p2: PXClientMessageEvent): Integer;
 
-  propertynotify_t = function (p1: PWindow; p2: PXPropertyEvent): Integer;
+  propertynotify_t = function (p1: PWMWindow; p2: PXPropertyEvent): Integer;
 
-  delete_t = function (p1: PWindow): Integer;
+  delete_t = function (p1: PWMWindow): Integer;
 
   TWMHints = record
 	{ The name of the hints }
@@ -119,19 +119,19 @@ type
 
 procedure hints_init();
 procedure hints_fini();
-procedure hints_manage(win: PWindow );
-procedure hints_unmanage(win: PWindow );
-procedure hints_map(win: PWindow );
-procedure hints_unmap(win: PWindow);
-procedure hints_withdraw(win: PWindow );
-procedure hints_activate(win: PWindow );
-procedure hints_deactivate(win: PWindow );
-procedure hints_move(win: PWindow );
-procedure hints_resize(win: PWindow );
-procedure hints_moveresize(win: PWindow );
-procedure hints_clientmessage(win: PWindow; ep: PXClientMessageEvent);
-procedure hints_propertynotify(win: PWindow; ep: PXPropertyEvent);
-function hints_delete(win: PWindow): Integer;
+procedure hints_manage(win: PWMWindow );
+procedure hints_unmanage(win: PWMWindow );
+procedure hints_map(win: PWMWindow );
+procedure hints_unmap(win: PWMWindow);
+procedure hints_withdraw(win: PWMWindow );
+procedure hints_activate(win: PWMWindow );
+procedure hints_deactivate(win: PWMWindow );
+procedure hints_move(win: PWMWindow );
+procedure hints_resize(win: PWMWindow );
+procedure hints_moveresize(win: PWMWindow );
+procedure hints_clientmessage(win: PWMWindow; ep: PXClientMessageEvent);
+procedure hints_propertynotify(win: PWMWindow; ep: PXPropertyEvent);
+function hints_delete(win: PWMWindow): Integer;
 procedure hints_restack();
 
 implementation
@@ -170,7 +170,7 @@ begin
 			vhints[i].fini();
 end;
 
-procedure hints_manage(win: PWindow);
+procedure hints_manage(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -179,7 +179,7 @@ begin
 			vhints[i].manage(win);
 end;
 
-procedure hints_unmanage(win: PWindow);
+procedure hints_unmanage(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -188,7 +188,7 @@ begin
 			vhints[i].unmanage(win);
 end;
 
-procedure hints_map(win: PWindow);
+procedure hints_map(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -197,7 +197,7 @@ begin
 			vhints[i].map(win);
 end;
 
-procedure hints_unmap(win: PWindow);
+procedure hints_unmap(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -206,7 +206,7 @@ begin
 			vhints[i].unmap(win);
 end;
 
-procedure hints_withdraw(win: PWindow);
+procedure hints_withdraw(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -215,7 +215,7 @@ begin
 			vhints[i].withdraw(win);
 end;
 
-procedure hints_activate(win: PWindow);
+procedure hints_activate(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -224,7 +224,7 @@ begin
 			vhints[i].activate(win);
 end;
 
-procedure hints_deactivate(win: PWindow);
+procedure hints_deactivate(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -233,7 +233,7 @@ begin
 			vhints[i].deactivate(win);
 end;
 
-procedure hints_move(win: PWindow);
+procedure hints_move(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -242,7 +242,7 @@ begin
 			vhints[i].move(win);
 end;
 
-procedure hints_resize(win: PWindow);
+procedure hints_resize(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -251,7 +251,7 @@ begin
 			vhints[i].resize(win);
 end;
 
-procedure hints_moveresize(win: PWindow);
+procedure hints_moveresize(win: PWMWindow);
 var
 	i: Integer;
 begin
@@ -260,7 +260,7 @@ begin
 			vhints[i].moveresize(win);
 end;
 
-procedure hints_clientmessage(win: PWindow; ep: PXClientMessageEvent);
+procedure hints_clientmessage(win: PWMWindow; ep: PXClientMessageEvent);
 var
 	i: Integer;
 begin
@@ -269,7 +269,7 @@ begin
                         if vhints[i].clientmessage(win, ep) <> 0 then Exit;
 end;
 
-procedure hints_propertynotify(win: PWindow; ep: PXPropertyEvent);
+procedure hints_propertynotify(win: PWMWindow; ep: PXPropertyEvent);
 var
 	i: Integer;
 begin
@@ -278,7 +278,7 @@ begin
                         if vhints[i].propertynotify(win, ep) <> 0 then Exit;
 end;
 
-function hints_delete(win: PWindow): Integer;
+function hints_delete(win: PWMWindow): Integer;
 var
 	i: Integer;
 begin

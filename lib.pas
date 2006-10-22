@@ -197,7 +197,7 @@ begin
 	assert(str != NULL);
 	new = karmen_malloc(strlen(str) + 1);
 	return strcpy(new, str);
-}
+end;}
 
 function eventname(type_: Integer): PChar;
 begin

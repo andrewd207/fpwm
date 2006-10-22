@@ -1,9 +1,9 @@
-/*
+{
  * Support for Extended Window Manager Hints
  * http://standards.freedesktop.org/wm-spec/wm-spec-latest.html
- */
+ }
 
-/*
+{
  * Copyright (c) 2006 Johan Veenhuizen
  *
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -24,7 +24,10 @@
  * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
  * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+ }
+unit ewmh;
+
+interface
 
 #include <X11/Xatom.h>
 #include <X11/Xlib.h>
@@ -287,3 +290,6 @@ static void delclient(Window w)
 		clientlist.lim = 0;
 	}
 }
+
+end.
+

@@ -477,13 +477,13 @@ begin
 		if (ep^._type = KeyRelease) then
                 begin
 			{ end window cycling }
-{			if (cycling) then
+			if (cycling) then
                         begin
 				cycling := 0;
 				menu_hide(winmenu);
 				XUngrabKeyboard(display, CurrentTime);
 				menu_select(winmenu);
-                        end;}
+                        end;
                 end;
 	  end;
 	  XK_Tab:
@@ -495,7 +495,7 @@ begin
 			XGrabKeyboard(display, root, True,
 			    GrabModeAsync, GrabModeAsync, CurrentTime);
 
-{			if (not MAPPED(winmenu)) then
+			if (not MAPPED(winmenu)) then
                         begin
 				int x = DisplayWidth(display, screen) / 2
 				    - WIDTH(winmenu) / 2;
@@ -515,12 +515,12 @@ begin
 			else if (winmenu->current < 0)
 				winmenu->current = winmenu->nitems - 1;
 
-			menu_repaint(winmenu);}
+			menu_repaint(winmenu);
 		end;
-//	  XK_Return:
-//		if (ep^._type = KeyPress and active <> nil) then
-//			window_maximize(active);
-{	  XK_Escape:
+	  XK_Return:
+		if (ep^._type = KeyPress and active <> nil) then
+			window_maximize(active);
+	  XK_Escape:
 		if (cycling) then
                 begin
 			cycling := 0;
@@ -529,18 +529,18 @@ begin
 			XUngrabKeyboard(display, CurrentTime);
 		end else if (ep^._type = KeyPress and active <> nil) then
 			window_unmap(active);}
-//	  XK_BackSpace:
-//		if (ep->type == KeyPress && active != NULL) {
-//			if ((ep->state & ShiftMask) != 0) {
+	  XK_BackSpace:
+		if (ep^._type = KeyPress) and (active <> nil) then
+                begin
+			if ((ep^.state and ShiftMask) <> 0) then
 //				clerr();
-//				XKillClient(display, active->client);
+				XKillClient(display, active->client)
 //				sterr();
-//			} else
-//				window_delete(active);
-//		}
-//		end;
+			end else
+				window_delete(active);
+		end;
 	else
-//		debug('handlekey(): Unhandled key');
+		WriteLn('handlekey(): Unhandled key');
         end;
 end;
 
@@ -551,7 +551,7 @@ var
 begin
         while true do
         begin
-{		window_restackall();
+		window_restackall();
 		if (nextevent(&e) == -1)
 			quit(1);
 		widget = widget_find(e.xany.window, CLASS_ANY);
@@ -588,27 +588,24 @@ begin
 					menu_popup(winmenu,
 					    e.xbutton.x, e.xbutton.y,
 					    e.xbutton.button);
-				break;
-			 KeyPress:
+			 KeyPress,
 			 KeyRelease:
 				handlekey(&e.xkey);
-				break;
-			 ClientMessage:
-			 CreateNotify:
-			 DestroyNotify:
-			 ConfigureNotify:
-			 ReparentNotify:
-			 MapNotify:
+			 ClientMessage,
+			 CreateNotify,
+			 DestroyNotify,
+			 ConfigureNotify,
+			 ReparentNotify,
+			 MapNotify,
 			 UnmapNotify:
 				{ ignore }
-				break;
+				Exit;
                         else
-				debug("wm: mainloop(): "
-				    "unhandled event -- %s (%d)",
-				    eventname(e.type), e.type);
-				break;
+				WriteLn('wm: mainloop(): ',
+				    'unhandled event -- ', eventname(e._type),
+				    e._type);
                         end;
-                end;}
+                end;
         end;
 end;
 
@@ -620,9 +617,9 @@ var
 begin
 	if (XQueryTree(display, root, @d1, @d2, @winlist, @n) <> 0) then
         begin
-{		for i := 0 to n -1 do
+		for i := 0 to n -1 do
 			if (widget_find(winlist[i], CLASS_ANY) = nil) then
-				window_manage(winlist[i], 0);}
+				window_manage(winlist[i], 0);
 		if (winlist <> nil) then
 			XFree(winlist);
         end;
@@ -633,8 +630,8 @@ var
 	sigact: SigActionRec;
 	mask: Tsigset;
 begin
-//	window_unmanageall();
-//	hints_fini();
+	window_unmanageall();
+	hints_fini();
 
 	XFreeFont(display, font);
 
@@ -646,9 +643,9 @@ begin
          }
 	if (signalled <> 0) then
         begin
-//		debug('terminating on signal ' + signalled);
+		WriteLn('terminating on signal ' + signalled);
 
-//		sigact.sa_handler := SIG_DFL;
+		sigact.sa_handler := SIG_DFL;
 		fpsigfillset(sigact.sa_mask);
 		sigact.sa_flags := 0;
 		fpsigaction(signalled, @sigact, nil);
