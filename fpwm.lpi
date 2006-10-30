@@ -9,13 +9,14 @@
         <MainUnitHasCreateFormStatements Value="False"/>
         <MainUnitHasTitleStatement Value="False"/>
       </Flags>
-      <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
       <IconPath Value="./"/>
       <TargetFileExt Value=""/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
+      <Language Value=""/>
+      <CharSet Value=""/>
     </VersionInfo>
     <PublishOptions>
       <Version Value="2"/>
@@ -29,18 +30,344 @@
         <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <Units Count="2">
+    <Units Count="49">
       <Unit0>
         <Filename Value="fpwm.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="fpwm"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="46"/>
       </Unit0>
       <Unit1>
+        <Filename Value="../../karmen-0.7a/src/button.c"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="lib.pas"/>
+        <UnitName Value="lib"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="button.pas"/>
+        <UnitName Value="button"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+      </Unit3>
+      <Unit4>
+        <Filename Value="icccm.pas"/>
+        <UnitName Value="icccm"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="22"/>
+      </Unit4>
+      <Unit5>
+        <Filename Value="../../karmen-0.7a/src/lib.h"/>
+        <CursorPos X="13" Y="74"/>
+        <TopLine Value="44"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit5>
+      <Unit6>
+        <Filename Value="converted/lib.h"/>
+        <CursorPos X="11" Y="34"/>
+        <TopLine Value="31"/>
+        <UsageCount Value="22"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="/usr/share/fpcsrc/packages/extra/x11/xlib.pp"/>
+        <UnitName Value="xlib"/>
+        <CursorPos X="10" Y="1302"/>
+        <TopLine Value="1286"/>
+        <UsageCount Value="15"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="converted/button.h"/>
+        <CursorPos X="15" Y="30"/>
+        <TopLine Value="17"/>
+        <UsageCount Value="12"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="/usr/share/fpcsrc/packages/extra/x11/x.pp"/>
+        <UnitName Value="x"/>
+        <CursorPos X="4" Y="57"/>
+        <TopLine Value="41"/>
+        <UsageCount Value="21"/>
+      </Unit9>
+      <Unit10>
         <Filename Value="main.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="main"/>
-      </Unit1>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="44"/>
+      </Unit10>
+      <Unit11>
+        <Filename Value="delete.xbm"/>
+        <CursorPos X="7" Y="3"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit11>
+      <Unit12>
+        <Filename Value="lower.xbm"/>
+        <CursorPos X="43" Y="3"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit12>
+      <Unit13>
+        <Filename Value="hide.xbm"/>
+        <CursorPos X="38" Y="3"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="None"/>
+      </Unit13>
+      <Unit14>
+        <Filename Value="/usr/share/fpcsrc/packages/extra/x11/xresource.pp"/>
+        <UnitName Value="xresource"/>
+        <CursorPos X="19" Y="107"/>
+        <TopLine Value="91"/>
+        <UsageCount Value="15"/>
+      </Unit14>
+      <Unit15>
+        <Filename Value="/usr/share/fpcsrc/rtl/unix/sysunixh.inc"/>
+        <CursorPos X="6" Y="51"/>
+        <TopLine Value="21"/>
+        <UsageCount Value="14"/>
+      </Unit15>
+      <Unit16>
+        <Filename Value="converted/global.h"/>
+        <CursorPos X="15" Y="47"/>
+        <TopLine Value="14"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit16>
+      <Unit17>
+        <Filename Value="/usr/share/fpcsrc/packages/base/libc/signalh.inc"/>
+        <CursorPos X="16" Y="70"/>
+        <TopLine Value="52"/>
+        <UsageCount Value="9"/>
+      </Unit17>
+      <Unit18>
+        <Filename Value="/usr/share/fpcsrc/rtl/unix/unix.pp"/>
+        <UnitName Value="Unix"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="14"/>
+      </Unit18>
+      <Unit19>
+        <Filename Value="/usr/share/fpcsrc/rtl/unix/bunxovlh.inc"/>
+        <CursorPos X="21" Y="77"/>
+        <TopLine Value="61"/>
+        <UsageCount Value="14"/>
+      </Unit19>
+      <Unit20>
+        <Filename Value="/usr/share/fpcsrc/rtl/unix/gensigset.inc"/>
+        <CursorPos X="1" Y="8"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="14"/>
+      </Unit20>
+      <Unit21>
+        <Filename Value="/usr/share/fpcsrc/rtl/unix/bunxh.inc"/>
+        <CursorPos X="81" Y="91"/>
+        <TopLine Value="73"/>
+        <UsageCount Value="9"/>
+      </Unit21>
+      <Unit22>
+        <Filename Value="/usr/share/fpcsrc/rtl/linux/signal.inc"/>
+        <CursorPos X="21" Y="174"/>
+        <TopLine Value="165"/>
+        <UsageCount Value="14"/>
+      </Unit22>
+      <Unit23>
+        <Filename Value="converted/main.c"/>
+        <CursorPos X="22" Y="404"/>
+        <TopLine Value="384"/>
+        <UsageCount Value="20"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit23>
+      <Unit24>
+        <Filename Value="converted/window.c"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="66"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit24>
+      <Unit25>
+        <Filename Value="widget.pas"/>
+        <UnitName Value="widget"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="18"/>
+      </Unit25>
+      <Unit26>
+        <Filename Value="converted/window.h"/>
+        <CursorPos X="32" Y="81"/>
+        <TopLine Value="2"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit26>
+      <Unit27>
+        <Filename Value="converted/widget.h"/>
+        <CursorPos X="32" Y="73"/>
+        <TopLine Value="41"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit27>
+      <Unit28>
+        <Filename Value="/usr/share/fpcsrc/packages/extra/x11/xutil.pp"/>
+        <UnitName Value="xutil"/>
+        <CursorPos X="6" Y="358"/>
+        <TopLine Value="274"/>
+        <UsageCount Value="17"/>
+      </Unit28>
+      <Unit29>
+        <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkwsstdctrls.pp"/>
+        <UnitName Value="GtkWSStdCtrls"/>
+        <CursorPos X="1" Y="326"/>
+        <TopLine Value="308"/>
+        <UsageCount Value="9"/>
+      </Unit29>
+      <Unit30>
+        <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkproc.inc"/>
+        <CursorPos X="23" Y="8607"/>
+        <TopLine Value="8590"/>
+        <UsageCount Value="9"/>
+      </Unit30>
+      <Unit31>
+        <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkproc.pp"/>
+        <UnitName Value="GTKProc"/>
+        <CursorPos X="9" Y="801"/>
+        <TopLine Value="786"/>
+        <UsageCount Value="10"/>
+      </Unit31>
+      <Unit32>
+        <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkwinapi.inc"/>
+        <CursorPos X="1" Y="5291"/>
+        <TopLine Value="5287"/>
+        <UsageCount Value="10"/>
+      </Unit32>
+      <Unit33>
+        <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkint.pp"/>
+        <UnitName Value="GtkInt"/>
+        <CursorPos X="1" Y="73"/>
+        <TopLine Value="48"/>
+        <UsageCount Value="9"/>
+      </Unit33>
+      <Unit34>
+        <Filename Value="../../lazarus/lcl/interfaces/gtk2/gtk2object.inc"/>
+        <CursorPos X="28" Y="869"/>
+        <TopLine Value="844"/>
+        <UsageCount Value="9"/>
+      </Unit34>
+      <Unit35>
+        <Filename Value="/usr/share/fpcsrc/packages/base/libc/spollh.inc"/>
+        <CursorPos X="4" Y="7"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="9"/>
+      </Unit35>
+      <Unit36>
+        <Filename Value="/usr/share/fpcsrc/rtl/netwlibc/libc.pp"/>
+        <UnitName Value="libc"/>
+        <CursorPos X="10" Y="1562"/>
+        <TopLine Value="1546"/>
+        <UsageCount Value="9"/>
+      </Unit36>
+      <Unit37>
+        <Filename Value="hints.pas"/>
+        <UnitName Value="hints"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="15"/>
+      </Unit37>
+      <Unit38>
+        <Filename Value="converted/hints.h"/>
+        <CursorPos X="1" Y="27"/>
+        <TopLine Value="77"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit38>
+      <Unit39>
+        <Filename Value="converted/icccm.c"/>
+        <CursorPos X="1" Y="124"/>
+        <TopLine Value="162"/>
+        <UsageCount Value="9"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit39>
+      <Unit40>
+        <Filename Value="grab.pas"/>
+        <UnitName Value="grab"/>
+        <CursorPos X="19" Y="51"/>
+        <TopLine Value="35"/>
+        <UsageCount Value="11"/>
+      </Unit40>
+      <Unit41>
+        <Filename Value="menu.pas"/>
+        <UnitName Value="menu"/>
+        <CursorPos X="13" Y="70"/>
+        <TopLine Value="50"/>
+        <UsageCount Value="13"/>
+      </Unit41>
+      <Unit42>
+        <Filename Value="converted/menu.h"/>
+        <CursorPos X="1" Y="27"/>
+        <TopLine Value="10"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit42>
+      <Unit43>
+        <Filename Value="converted/menu.c"/>
+        <CursorPos X="1" Y="167"/>
+        <TopLine Value="148"/>
+        <UsageCount Value="12"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit43>
+      <Unit44>
+        <Filename Value="ewmh.pas"/>
+        <UnitName Value="ewmh"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="11"/>
+      </Unit44>
+      <Unit45>
+        <Filename Value="../../karmen-0.7a/src/button.h"/>
+        <CursorPos X="8" Y="32"/>
+        <TopLine Value="14"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit45>
+      <Unit46>
+        <Filename Value="converted/grab.c"/>
+        <CursorPos X="1" Y="1"/>
+        <TopLine Value="50"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit46>
+      <Unit47>
+        <Filename Value="converted/hints.c"/>
+        <CursorPos X="19" Y="9"/>
+        <TopLine Value="162"/>
+        <UsageCount Value="10"/>
+        <SyntaxHighlighter Value="C++"/>
+      </Unit47>
+      <Unit48>
+        <Filename Value="window.pas"/>
+        <UnitName Value="window"/>
+        <CursorPos X="1" Y="174"/>
+        <TopLine Value="1"/>
+        <UsageCount Value="10"/>
+      </Unit48>
     </Units>
+    <JumpHistory Count="0" HistoryIndex="-1"/>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="5"/>
