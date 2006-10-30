@@ -12,7 +12,7 @@
       <MainUnit Value="0"/>
       <IconPath Value="./"/>
       <TargetFileExt Value=""/>
-      <ActiveEditorIndexAtStart Value="10"/>
+      <ActiveEditorIndexAtStart Value="11"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -61,9 +61,11 @@
       <Unit3>
         <Filename Value="button.pas"/>
         <UnitName Value="button"/>
-        <CursorPos X="1" Y="1"/>
+        <CursorPos X="1" Y="7"/>
         <TopLine Value="1"/>
+        <EditorIndex Value="11"/>
         <UsageCount Value="22"/>
+        <Loaded Value="True"/>
       </Unit3>
       <Unit4>
         <Filename Value="icccm.pas"/>
@@ -115,7 +117,7 @@
         <UnitName Value="main"/>
         <CursorPos X="1" Y="7"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="13"/>
         <UsageCount Value="44"/>
         <Loaded Value="True"/>
       </Unit10>
@@ -381,8 +383,8 @@
       <Unit48>
         <Filename Value="window.pas"/>
         <UnitName Value="window"/>
-        <CursorPos X="6" Y="401"/>
-        <TopLine Value="103"/>
+        <CursorPos X="1" Y="7"/>
+        <TopLine Value="1"/>
         <EditorIndex Value="10"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
@@ -409,7 +411,7 @@
         <Filename Value="window.backup"/>
         <CursorPos X="2" Y="1274"/>
         <TopLine Value="1241"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="12"/>
         <UsageCount Value="10"/>
         <Loaded Value="True"/>
         <SyntaxHighlighter Value="None"/>
