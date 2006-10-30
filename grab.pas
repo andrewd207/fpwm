@@ -7,7 +7,7 @@
  }
 
 {
- * Copyright (c) 2006 Johan Veenhuizen
+ * Copyright (c) 2006 Felipe Monteiro de Carvalho, Daniel Franzini
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
