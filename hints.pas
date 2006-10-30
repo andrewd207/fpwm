@@ -40,6 +40,7 @@ uses
   { Free Pascal Units }
   SysUtils,
   { Units from fpwm }
+  window,
   { XLib units }
   X, Xlib, Xutil;
 

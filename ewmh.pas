@@ -29,16 +29,17 @@ unit ewmh;
 
 interface
 
-#include <X11/Xatom.h>
+{#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
 #include "global.h"
 #include "hints.h"
 #include "lib.h"
-#include "window.h"
+#include "window.h"}
 
-enum {
+type
+  TEwmh_enum = (
 	NET_SUPPORTED,
 	NET_CLIENT_LIST,
 	NET_CLIENT_LIST_STACKING,
@@ -53,101 +54,105 @@ enum {
 	NET_CLOSE_WINDOW,
 
 	NATOM
-};
+  );
 
-struct winlist {
-	long *win;
-	int len;
-	int lim;
-};
+  winlist = record
+	win: PInteger;
+	len: Integer;
+	lim: Integer;
+  end;
 
-/* EWMH atoms, indexed by the above enum */
-static Atom atom[NATOM];
+var
+{ EWMH atoms, indexed by the above enum }
+  atom: array[0..12] of TAtom; // 12 = NATOM
 
-/* The EWMH UTF-8 string type */
-static Atom UTF8_STRING;
+{ The EWMH UTF-8 string type }
+  Atom: UTF8String;
 
-/* List of managed clients, oldest first */
+{ List of managed clients, oldest first }
 static struct winlist clientlist = { NULL, 0, 0 };
 
-/* Geometry of the workarea (x, y, width, height) */
-static long workarea[4];
+{ Geometry of the workarea (x, y, width, height) }
+  workarea: array[0..3] of Integer;
 
-/* The window used for announcing EWMH support */
-static Window supportwin = None;
+{ The window used for announcing EWMH support }
+  supportwin: TWindow = None;
 
-static void ewmh_init(void);
-static void ewmh_fini(void);
-static void ewmh_manage(struct window *);
-static void ewmh_unmanage(struct window *);
-static void ewmh_activate(struct window *);
-static void ewmh_restack(void);
-static int ewmh_clientmessage(struct window *, XClientMessageEvent *);
-static void addclient(Window);
-static void delclient(Window);
+procedure  ewmh_init();
+procedure  ewmh_fini();
+procedure  ewmh_manage(win: PWMWindow);
+procedure  ewmh_unmanage(win: PWMWindow);
+procedure  ewmh_activate(win: PWMWindow);
+procedure  ewmh_restack();
+function ewmh_clientmessage(win: PWMWindow; ep: PXClientMessageEvent): Integer;
+procedure  addclient(w: TWindow);
+procedure  delclient(w: TWindow);
 
-struct hints ewmh_hints = {
-	.init = ewmh_init,
-	.fini = ewmh_fini,
-	.manage = ewmh_manage,
-	.unmanage = ewmh_unmanage,
-	.activate = ewmh_activate,
-	.restack = ewmh_restack,
-	.clientmessage = ewmh_clientmessage,
-};
+var
+  ewmh_hints: TWMHint = (
+	init = ewmh_init,
+	fini = ewmh_fini,
+	manage = ewmh_manage,
+	unmanage = ewmh_unmanage,
+	activate = ewmh_activate,
+	restack = ewmh_restack,
+	clientmessage = ewmh_clientmessage,
+  );
 
-static void ewmh_init(void)
-{
+implementation
+
+procedure ewmh_init();
+var
 	XSetWindowAttributes attr;
-	long ndesk;
-	long curdesk;
-	long geom[2];
-	long viewport[2];
-	long active;
-
-	attr.override_redirect = True;
-	supportwin = XCreateWindow(display, root, 0, 0, 1, 1, 0,
+	ndesk: Integer;
+	curdesk: Integer;
+	geom: array[0..1] of Integer;
+	viewport: array[0..1] of Integer;
+	active: Integer;
+begin
+	attr.override_redirect := True;
+	supportwin := XCreateWindow(display, root, 0, 0, 1, 1, 0,
 	    CopyFromParent, InputOnly, CopyFromParent,
-	    CWOverrideRedirect, &attr);
+	    CWOverrideRedirect, @attr);
 
-	ndesk = 1;
-	curdesk = 0;
-	geom[0] = DisplayWidth(display, screen);
-	geom[1] = DisplayHeight(display, screen);
-	viewport[0] = 0;
-	viewport[1] = 0;
-	active = None;
-	workarea[0] = 0; /* x */
-	workarea[1] = 0; /* y */
-	workarea[2] = DisplayWidth(display, screen);
-	workarea[3] = DisplayHeight(display, screen);
+	ndesk := 1;
+	curdesk := 0;
+	geom[0] := DisplayWidth(display, screen);
+	geom[1] := DisplayHeight(display, screen);
+	viewport[0] := 0;
+	viewport[1] := 0;
+	active := None;
+	workarea[0] := 0; /* x */
+	workarea[1] := 0; /* y */
+	workarea[2] := DisplayWidth(display, screen);
+	workarea[3] := DisplayHeight(display, screen);
 
-	UTF8_STRING = XInternAtom(display, "UTF8_STRING", False);
+	UTF8_STRING := XInternAtom(display, "UTF8_STRING", False);
 
-	atom[NET_SUPPORTED] = XInternAtom(display,
-	    "_NET_SUPPORTED", False);
-	atom[NET_CLIENT_LIST] = XInternAtom(display,
-	    "_NET_CLIENT_LIST", False);
-	atom[NET_CLIENT_LIST_STACKING] = XInternAtom(display,
-	    "_NET_CLIENT_LIST_STACKING", False);
-	atom[NET_NUMBER_OF_DESKTOPS] = XInternAtom(display,
-	    "_NET_NUMBER_OF_DESKTOPS", False);
-	atom[NET_DESKTOP_GEOMETRY] = XInternAtom(display,
-	    "_NET_DESKTOP_GEOMETRY", False);
-	atom[NET_DESKTOP_VIEWPORT] = XInternAtom(display,
-	    "_NET_DESKTOP_VIEWPORT", False);
-	atom[NET_CURRENT_DESKTOP] = XInternAtom(display,
-	    "_NET_CURRENT_DESKTOP", False);
-	atom[NET_ACTIVE_WINDOW] = XInternAtom(display,
-	    "_NET_ACTIVE_WINDOW", False);
-	atom[NET_WORKAREA] = XInternAtom(display,
-	    "_NET_WORKAREA", False);
-	atom[NET_SUPPORTING_WM_CHECK] = XInternAtom(display,
-	    "_NET_SUPPORTING_WM_CHECK", False);
-	atom[NET_WM_NAME] = XInternAtom(display,
-	    "_NET_WM_NAME", False);
-	atom[NET_CLOSE_WINDOW] = XInternAtom(display,
-	    "_NET_CLOSE_WINDOW", False);
+	atom[NET_SUPPORTED] := XInternAtom(display,
+	    '_NET_SUPPORTED', False);
+	atom[NET_CLIENT_LIST] := XInternAtom(display,
+	    '_NET_CLIENT_LIST', False);
+	atom[NET_CLIENT_LIST_STACKING] := XInternAtom(display,
+	    '_NET_CLIENT_LIST_STACKING', False);
+	atom[NET_NUMBER_OF_DESKTOPS] := XInternAtom(display,
+	    '_NET_NUMBER_OF_DESKTOPS', False);
+	atom[NET_DESKTOP_GEOMETRY] := XInternAtom(display,
+	    '_NET_DESKTOP_GEOMETRY', False);
+	atom[NET_DESKTOP_VIEWPORT] := XInternAtom(display,
+	    '_NET_DESKTOP_VIEWPORT', False);
+	atom[NET_CURRENT_DESKTOP] := XInternAtom(display,
+	    '_NET_CURRENT_DESKTOP', False);
+	atom[NET_ACTIVE_WINDOW] := XInternAtom(display,
+	    '_NET_ACTIVE_WINDOW', False);
+	atom[NET_WORKAREA] := XInternAtom(display,
+	    '_NET_WORKAREA', False);
+	atom[NET_SUPPORTING_WM_CHECK] := XInternAtom(display,
+	    '_NET_SUPPORTING_WM_CHECK', False);
+	atom[NET_WM_NAME] := XInternAtom(display,
+	    '_NET_WM_NAME', False);
+	atom[NET_CLOSE_WINDOW] := XInternAtom(display,
+	    '_NET_CLOSE_WINDOW', False);
 
 	XChangeProperty(display, root, atom[NET_CLIENT_LIST],
 	    XA_WINDOW, 32, PropModeReplace, NULL, 0);
@@ -173,14 +178,14 @@ static void ewmh_init(void)
 	    UTF8_STRING, 8, PropModeReplace,
 	    (unsigned char *)"Karmen", 7);
 
-	/* set this last, when everything is set up */
+	{ set this last, when everything is set up }
 	XChangeProperty(display, root, atom[NET_SUPPORTED], XA_ATOM, 32,
 	    PropModeReplace, (unsigned char *)atom, NELEM(atom));
-}
+end;
 
-static void ewmh_fini(void)
-{
-	/* delete this first, before we tear things down */
+procedure ewmh_fini();
+begin
+	{ delete this first, before we tear things down }
 	XDeleteProperty(display, root, atom[NET_SUPPORTED]);
 
 	XDeleteProperty(display, root, atom[NET_CLIENT_LIST]);
@@ -196,41 +201,41 @@ static void ewmh_fini(void)
 	XDeleteProperty(display, supportwin, atom[NET_WM_NAME]);
 
 	XDestroyWindow(display, supportwin);
-}
+end;
 
-static void ewmh_manage(struct window *win)
-{
-	addclient(win->client);
+procedure ewmh_manage(win: PWMWindow);
+begin
+	addclient(win^.client);
 	XChangeProperty(display, root, atom[NET_CLIENT_LIST],
 	    XA_WINDOW, 32, PropModeReplace,
 	    (unsigned char *)clientlist.win, clientlist.len);
-}
+end;
 
-static void ewmh_unmanage(struct window *win)
-{
+procedure ewmh_unmanage(win: PWMWindow);
+begin
 	delclient(win->client);
 	XChangeProperty(display, root, atom[NET_CLIENT_LIST],
 	    XA_WINDOW, 32, PropModeReplace,
 	    (unsigned char *)clientlist.win, clientlist.len);
-}
+end;
 
-static void ewmh_activate(struct window *win)
-{
-	Window w;
-
-	w = win == NULL ? None : win->client;
+procedure ewmh_activate(win: PWMWindow);
+var
+	w: TWindow;
+begin
+	if (win = nil) then w := None else w := win^.client;
 	XChangeProperty(display, root, atom[NET_ACTIVE_WINDOW],
-	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)&w, 1);
-}
+	    XA_WINDOW, 32, PropModeReplace, (unsigned char *)@w, 1);
+end;
 
-static void ewmh_restack(void)
-{
-	Window *stack, w;
-	int i, j, n;
-
+procedure ewmh_restack();
+var
+	stack, w: PWindow;
+	i, j, n: Integer;
+begin
 	window_getclientstack(&stack, &n);
 
-	/* reverse the stack */
+	{ reverse the stack }
 	for (i = 0, j = n - 1; i < j; i++, j--) {
 		w = stack[i];
 		stack[i] = stack[j];
@@ -242,13 +247,13 @@ static void ewmh_restack(void)
 	    (unsigned char *)stack, n);
 
 	karmen_free(stack);
-}
+end;
 
-static int ewmh_clientmessage(struct window *win, XClientMessageEvent *ep)
-{
+function ewmh_clientmessage(win: PWMWindow; ep: PXClientMessageEvent): Integer;
+var
 	int type = ep->message_type;
 	int format = ep->format;
-
+begin
 	if (type == atom[NET_ACTIVE_WINDOW] && format == 32) {
 		window_setactive(win);
 	} else if (type == atom[NET_CLOSE_WINDOW] && format == 32) {
@@ -256,40 +261,43 @@ static int ewmh_clientmessage(struct window *win, XClientMessageEvent *ep)
 	} else
 		return 0;
 
-	return 1;
-}
+	Result := 1;
+end;
 
-static void addclient(Window w)
-{
-	if (clientlist.len == clientlist.lim) {
-		clientlist.lim += 32;
-		clientlist.win = karmen_realloc(clientlist.win,
+procedure addclient(w: TWindow);
+begin
+	if (clientlist.len = clientlist.lim) then
+        begin
+		Inc(clientlist.lim, 32);
+		clientlist.win := karmen_realloc(clientlist.win,
 		    clientlist.lim * sizeof (long));
-	}
-	clientlist.win[clientlist.len++] = (long)w;
-}
+        end;
+        Inc(clientlist.len);
+	clientlist.win[clientlist.len] := Cardinal(w);
+end;
 
-static void delclient(Window w)
-{
-	int i;
+procedure delclient(w: TWindow);
+var
+	i: Integer;
+begin
+	if (clientlist.len = 0) then Exit;
 
-	if (clientlist.len == 0)
-		return;
-
-	clientlist.len--;
+	Dec(clientlist.len);
 	for (i = 0; i < clientlist.len && clientlist.win[i] != (long)w; i++)
 		;
-	if (i < clientlist.len) {
+	if (i < clientlist.len) then
+        begin
 		for (; i < clientlist.len; i++)
-			clientlist.win[i] = clientlist.win[i + 1];
-	}
+			clientlist.win[i] := clientlist.win[i + 1];
+	end;
 
-	if (clientlist.len == 0) {
+	if (clientlist.len = 0) then
+        begin
 		karmen_free(clientlist.win);
-		clientlist.win = NULL;
-		clientlist.lim = 0;
-	}
-}
+		clientlist.win := nil;
+		clientlist.lim := 0;
+        end;
+end;
 
 end.
 

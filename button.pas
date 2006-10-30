@@ -63,13 +63,11 @@ type
   end;
   
   PWMbutton = ^TWMbutton;
-  
-  PWMWidget = Pointer;
 
 
 procedure button_repaint(self: PWMButton);
 procedure buttonevent(widget: PWMWidget; ep: PXEvent);
-function button_create(window: PWMWindow; int, int, int, int): PWMButton;
+function button_create(window: PWMWindow; x, y, width, height: Integer): PWMButton;
 procedure button_destroy(button: PWMButton);
 procedure button_move(button: PWMButton; x, y: Integer);
 procedure button_sethandler(button: PWMButton; handler: handler_t);
@@ -89,8 +87,8 @@ var
 begin
         if window_isfamilyactive(self^.window) then
         begin
-    	  fg :=  @color_title_active_fg
-          bg := @color_title_active_bg
+    	  fg :=  @color_title_active_fg;
+          bg := @color_title_active_bg;
         end
         else
         begin
@@ -98,13 +96,18 @@ begin
 	  bg := @color_title_inactive_bg;
         end;
         
-	if (self^.depressed <> 0) then begin
+	if (self^.depressed <> 0) then
+        begin
 		fgpixel := fg^.shadow1;
 		bgpixel := bg^.shadow1;
-	end else if (self^.hover <> 0) then begin
+	end
+        else if (self^.hover <> 0) then
+        begin
 		fgpixel := fg^.bright1;
 		bgpixel := bg^.bright1;
-	end else begin
+	end
+        else
+        begin
 		fgpixel := fg^.normal;
 		bgpixel := bg^.normal;
         end;
@@ -167,7 +170,9 @@ begin
 				menu_popup(winmenu,
 				    ep^.xbutton.x_root, ep^.xbutton.y_root,
 				    ep^.xbutton.button);
-		end else begin
+		end
+                else
+                begin
 			self^.acting := 1;
 			self^.depressed := 1;
                 end;
@@ -207,20 +212,20 @@ begin
 	end;
 end;
 
-function button_create(window: PWMWindow; x, y, width, height: Integer): TWMbutton;
+function button_create(window: PWMWindow; x, y, width, height: Integer): PWMbutton;
 var
 	gcval: TXGCValues;
 	bp: PWMButton;
 begin
-	bp := karmen_malloc(sizeof (struct button));
-	widget_create(@bp^.widget, CLASS_BUTTON, window^.XWINDOW,
+	bp := GetMem(sizeof(TWMButton));
+	widget_create(@bp^.widget, CLASS_BUTTON, window^.widget.XWINDOW,
 	    x, y, width, height);
 
 	bp^.pixmap := XCreatePixmap(display, bp^.widget.XWINDOW,
             bp^.widget.dim.width, bp^.widget.dim.height,
 	    DefaultDepth(display, screen));
-	gcval.graphics_exposures = False;
-	bp^.gc := XCreateGC(display, XWINDOW(bp), GCGraphicsExposures, @gcval);
+	gcval.graphics_exposures := False;
+	bp^.gc := XCreateGC(display, bp^.widget.XWINDOW, GCGraphicsExposures, @gcval);
 	bp^.image := nil;
 
 	bp^.window := window;
@@ -228,7 +233,7 @@ begin
 	bp^.depressed := 0;
 	bp^.hover := 0;
 	bp^.handler := nil;
-	bp^.widget.event := buttonevent;
+	bp^.widget.event := @buttonevent;
 	XSelectInput(display, bp^.widget.XWINDOW, ButtonPressMask or ButtonReleaseMask
 	    or ExposureMask or EnterWindowMask or LeaveWindowMask);
 	widget_map(@bp^.widget);

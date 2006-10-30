@@ -53,8 +53,6 @@ uses
 function MAX(a, b: Byte): Byte;
 function MIN(a, b: Byte): Byte;
 
-//#define NELEM(v)	(sizeof v / sizeof v[0])
-
 type
   TWMImage = record
 	data: PByte;
@@ -204,37 +202,37 @@ begin
 	case (type_) of
 	 KeyPress: Result := 'KeyPress';
 	 KeyRelease: Result := 'KeyRelease';
-	 ButtonPress: Result := '';
-	 ButtonRelease: Result := '';
-	 MotionNotify: Result := '';
-	 EnterNotify: Result := '';
-	 LeaveNotify: Result := '';
-	 FocusIn: Result := '';
-	 FocusOut: Result := '';
-	 KeymapNotify: Result := '';
-	 Expose: Result := '';
-	 GraphicsExpose: Result := '';
-	 NoExpose: Result := '';
-	 VisibilityNotify: Result := '';
-	 CreateNotify: Result := '';
-	 DestroyNotify: Result := '';
-	 UnmapNotify: Result := '';
-	 MapNotify: Result := '';
-	 MapRequest: Result := '';
-	 ReparentNotify: Result := '';
-	 ConfigureNotify: Result := '';
-	 ConfigureRequest: Result := '';
-	 GravityNotify: Result := '';
-	 ResizeRequest: Result := '';
-	 CirculateNotify: Result := '';
-	 CirculateRequest: Result := '';
-	 PropertyNotify: Result := '';
-	 SelectionClear: Result := '';
-	 SelectionRequest: Result := '';
-	 SelectionNotify: Result := '';
-	 ColormapNotify: Result := '';
-	 ClientMessage: Result := '';
-	 MappingNotify: Result := '';
+	 ButtonPress: Result := 'ButtonPress';
+	 ButtonRelease: Result := 'ButtonRelease';
+	 MotionNotify: Result := 'MotionNotify';
+	 EnterNotify: Result := 'EnterNotify';
+	 LeaveNotify: Result := 'LeaveNotify';
+	 FocusIn: Result := 'FocusIn';
+	 FocusOut: Result := 'FocusOut';
+	 KeymapNotify: Result := 'KeymapNotify';
+	 Expose: Result := 'Expose';
+	 GraphicsExpose: Result := 'GraphicsExpose';
+	 NoExpose: Result := 'NoExpose';
+	 VisibilityNotify: Result := 'VisibilityNotify';
+	 CreateNotify: Result := 'CreateNotify';
+	 DestroyNotify: Result := 'DestroyNotify';
+	 UnmapNotify: Result := 'UnmapNotify';
+	 MapNotify: Result := 'MapNotify';
+	 MapRequest: Result := 'MapRequest';
+	 ReparentNotify: Result := 'ReparentNotify';
+	 ConfigureNotify: Result := 'ConfigureNotify';
+	 ConfigureRequest: Result := 'ConfigureRequest';
+	 GravityNotify: Result := 'GravityRequest';
+	 ResizeRequest: Result := 'ResizeRequest';
+	 CirculateNotify: Result := 'CirculateNotify';
+	 CirculateRequest: Result := 'CirculateRequest';
+	 PropertyNotify: Result := 'PropertyNotify';
+	 SelectionClear: Result := 'SelectionClear';
+	 SelectionRequest: Result := 'SelectionRequest';
+	 SelectionNotify: Result := 'SelectionNotify';
+	 ColormapNotify: Result := 'ColormapNotify';
+	 ClientMessage: Result := 'ClientMessage';
+	 MappingNotify: Result := 'MappingNotify';
   else
 		Result := 'INVALID EVENT';
   end;

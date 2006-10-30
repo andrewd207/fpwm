@@ -75,8 +75,9 @@ type
 #define X(ptr)		(((struct widget *)(ptr))->dim.x)
 #define Y(ptr)		(((struct widget *)(ptr))->dim.y)
 #define WIDTH(ptr)	(((struct widget *)(ptr))->dim.width)
-#define HEIGHT(ptr)	(((struct widget *)(ptr))->dim.height)
-#define MAPPED(ptr)	(((struct widget *)(ptr))->mapped)}
+#define HEIGHT(ptr)	(((struct widget *)(ptr))->dim.height)}
+
+function MAPPED(ptr: Pointer): Boolean;
 
 procedure widget_init();
 procedure widget_create(widget: PWMWidget; _class: TWMClass; xparent: TWindow;
@@ -99,6 +100,11 @@ uses
 
 var
   wmcontext: TXContext;
+
+function MAPPED(ptr: Pointer): Boolean;
+begin
+  Result := PWMWidget(ptr)^.mapped;
+end;
 
 procedure widget_init();
 begin

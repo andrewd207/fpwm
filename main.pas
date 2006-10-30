@@ -19,7 +19,7 @@ uses
   { Free Pascal Units }
   SysUtils, Unix, BaseUnix, UnixType,
   { Units from fpwm }
-  button, lib, menu,
+  button, lib, menu, window,
   { XLib units }
   X, Xlib, Xutil, Xresource, keysym;
 
@@ -28,6 +28,12 @@ uses
 {$include hide.xbm}
 
 var
+  { from global.h }
+  
+  active: PWMWindow;
+  
+  { from main.c }
+
   errno: Integer;
 
   display: PDisplay;
@@ -148,7 +154,7 @@ implementation
 
 uses
   { Units from fpwm }
-  grab, widget;
+  hints, grab, widget;
 
 function error_handler(dpy: PDisplay; err: PXErrorEvent): Integer; cdecl;
 var
@@ -211,11 +217,11 @@ begin
 		Result := 0;
 end;
 
-{function nextevent(ep: PXEvent): Integer;
+function nextevent(ep: PXEvent): Integer;
 begin
-	if (signalled) then
+	if (signalled <> 0) then
         begin
-		errno := EINTR;
+//		errno := EINTR;
 		Result := -1;
                 Exit;
         end;
@@ -226,24 +232,24 @@ begin
         end;
 	XNextEvent(display, ep);
 	Result := 0;
-end;}
+end;
 
-{function maskevent(mask: Integer; ep: PXEvent): Integer;
+function maskevent(mask: Integer; ep: PXEvent): Integer;
 begin
 	Result := 0;
 
-	if (signalled) then
+	if (signalled <> 0) then
         begin
-		errno := EINTR;
+//		errno := EINTR;
 		Result := -1;
                 Exit;
         end;
 
-	while (!XCheckMaskEvent(display, mask, ep)) do
+	while (not XCheckMaskEvent(display, mask, ep)) do
         begin
 		if (waitevent() = -1) then Result := -1;
         end;
-end;}
+end;
 
 procedure mkcolor(color: PWMColor; const name: string);
 var
@@ -349,7 +355,7 @@ begin
 
 {	if (XrmGetResource(db, 'karmen.border.width',
 	    'Karmen.Border.Width', @dummy, @val)) then
-		border_width := atoi((char *)val.addr);}
+		border_width := atoi((char * )val.addr);}
 
 	if (XrmGetResource(db, 'karmen.innerborder.color',
 	    'Karmen.InnerBorder.Color', @dummy, @val)) then
@@ -357,7 +363,7 @@ begin
 
 {	if (XrmGetResource(db, 'karmen.innerborder.width',
 	    'Karmen.InnerBorder.Width', @dummy, @val)) then
-		innerborder_width := atoi((char *)val.addr);}
+		innerborder_width := atoi((char * )val.addr); }
 
 	if (XrmGetResource(db, 'karmen.font', 'Karmen.Font', @dummy, @val)) then
 		 font_names[0] := val.addr;
@@ -467,6 +473,7 @@ end;
 procedure handlekey(ep: PXKeyEvent);
 var
 	cycling: Integer = 0;
+        x, y: Integer;
 begin
 	case (XKeycodeToKeysym(display, ep^.keycode, 0)) of
 	  XK_Meta_L,
@@ -477,7 +484,7 @@ begin
 		if (ep^._type = KeyRelease) then
                 begin
 			{ end window cycling }
-			if (cycling) then
+			if (cycling <> 0) then
                         begin
 				cycling := 0;
 				menu_hide(winmenu);
@@ -497,44 +504,45 @@ begin
 
 			if (not MAPPED(winmenu)) then
                         begin
-				int x = DisplayWidth(display, screen) / 2
-				    - WIDTH(winmenu) / 2;
-				int y = DisplayHeight(display, screen) / 2
-				    - HEIGHT(winmenu) / 2;
+				x := DisplayWidth(display, screen) div 2
+				    - winmenu^.widget.dim.width div 2;
+				y := DisplayHeight(display, screen) div 2
+				    - winmenu^.widget.dim.HEIGHT div 2;
 				menu_popup(winmenu, x, y, -1);
                         end;
 
-			if (winmenu->current == -1)
-				winmenu->current = 1;
+			if (winmenu^.current = -1) then
+				winmenu^.current := 1
 			else
-				winmenu->current +=
-				    (ep->state & ShiftMask) == 0 ? 1 : -1;
+                                if (ep^.state and ShiftMask) = 0 then Inc(winmenu^.current)
+                                else Dec(winmenu^.current);
 
-			if (winmenu->current >= winmenu->nitems)
-				winmenu->current = 0;
-			else if (winmenu->current < 0)
-				winmenu->current = winmenu->nitems - 1;
+			if (winmenu^.current >= winmenu^.nitems) then
+				winmenu^.current := 0
+			else if (winmenu^.current < 0) then
+				winmenu^.current := winmenu^.nitems - 1;
 
 			menu_repaint(winmenu);
 		end;
 	  XK_Return:
-		if (ep^._type = KeyPress and active <> nil) then
+		if (ep^._type = KeyPress) and (active <> nil) then
 			window_maximize(active);
 	  XK_Escape:
-		if (cycling) then
+		if (cycling <> 0) then
                 begin
 			cycling := 0;
 			winmenu^.current := -1;
 			menu_hide(winmenu);
 			XUngrabKeyboard(display, CurrentTime);
-		end else if (ep^._type = KeyPress and active <> nil) then
-			window_unmap(active);}
+		end else if (ep^._type = KeyPress) and (active <> nil) then
+			window_unmap(active);
 	  XK_BackSpace:
 		if (ep^._type = KeyPress) and (active <> nil) then
                 begin
 			if ((ep^.state and ShiftMask) <> 0) then
+                        begin
 //				clerr();
-				XKillClient(display, active->client)
+				XKillClient(display, active^.client);
 //				sterr();
 			end else
 				window_delete(active);
@@ -548,28 +556,27 @@ procedure mainloop;
 var
 	widget: PWMWidget;
 	e: TXEvent;
+	wc: TXWindowChanges;
+	conf: PXConfigureRequestEvent;
 begin
         while true do
         begin
 		window_restackall();
-		if (nextevent(&e) == -1)
-			quit(1);
-		widget = widget_find(e.xany.window, CLASS_ANY);
+		if (nextevent(@e) = -1) then Halt(1); // quit(1)
+
+		widget := widget_find(e.xany.window, CLASS_ANY);
 		if (widget <> nil) then
                 begin
-			if (widget->event != NULL)
-				widget->event(widget, &e);
+			if (widget^.event <> nil) then
+				widget^.event(widget, @e);
 		end
                 else
                 begin
-			XWindowChanges wc;
-			XConfigureRequestEvent *conf;
-
-			case (e.type_) of
+			case (e._type) of
 			 MapRequest:
 				window_manage(e.xmaprequest.window, 1);
-				break;
 			 ConfigureRequest:
+                         begin
 				conf := @e.xconfigurerequest;
 				wc.x := conf^.x;
 				wc.y := conf^.y;
@@ -582,15 +589,15 @@ begin
 				XConfigureWindow(display, conf^.window,
 				    conf^.value_mask, @wc);
 				sterr();
-				break;
+			 end;
 			 ButtonPress:
-				if (e.xbutton.button == Button3)
+				if (e.xbutton.button = Button3) then
 					menu_popup(winmenu,
 					    e.xbutton.x, e.xbutton.y,
 					    e.xbutton.button);
 			 KeyPress,
 			 KeyRelease:
-				handlekey(&e.xkey);
+				handlekey(@e.xkey);
 			 ClientMessage,
 			 CreateNotify,
 			 DestroyNotify,
@@ -643,9 +650,9 @@ begin
          }
 	if (signalled <> 0) then
         begin
-		WriteLn('terminating on signal ' + signalled);
+		WriteLn('terminating on signal ', signalled);
 
-		sigact.sa_handler := SIG_DFL;
+//		sigact.sa_handler := SIG_DFL;
 		fpsigfillset(sigact.sa_mask);
 		sigact.sa_flags := 0;
 		fpsigaction(signalled, @sigact, nil);

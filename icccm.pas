@@ -47,9 +47,9 @@ interface
 
 uses
   { Free Pascal Units }
-  SysUtils,
+  SysUtils, ctypes,
   { Units from fpwm }
-  hints,
+  hints, window,
   { XLib units }
   X, Xlib, Xutil, XAtom;
 
@@ -60,18 +60,18 @@ var
   WM_STATE: TAtom;
 
 procedure icccm_init();
-procedure icccm_manage(win: PWindow);
-procedure icccm_map(win: PWindow);
-procedure icccm_unmap(win: PWindow);
-procedure icccm_withdraw(win: PWindow);
-procedure icccm_move(win: PWindow);
-function icccm_clientmessage(win: PWindow; ep: PXClientMessageEvent): Integer;
-function icccm_propertynotify(win: PWindow; ep: PXPropertyEvent): Integer;
-function icccm_delete(win: PWindow): Integer;
-function knowsproto(win: PWindow; proto: TAtom): Integer;
-procedure sendmesg(win: PWindow; type_: TAtom; value: Integer);
-procedure sendconf(win: PWindow);
-procedure setwmstate(win: PWindow; state: Integer);
+procedure icccm_manage(win: PWMWindow);
+procedure icccm_map(win: PWMWindow);
+procedure icccm_unmap(win: PWMWindow);
+procedure icccm_withdraw(win: PWMWindow);
+procedure icccm_move(win: PWMWindow);
+function icccm_clientmessage(win: PWMWindow; ep: PXClientMessageEvent): Integer;
+function icccm_propertynotify(win: PWMWindow; ep: PXPropertyEvent): Integer;
+function icccm_delete(win: PWMWindow): Integer;
+function knowsproto(win: PWMWindow; proto: TAtom): Integer;
+procedure sendmesg(win: PWMWindow; type_: TAtom; value: Integer);
+procedure sendconf(win: PWMWindow);
+procedure setwmstate(win: PWMWindow; state: Integer);
 
 var
   icccm_hints: TWMHints = (
@@ -108,32 +108,32 @@ begin
 	WM_STATE := XInternAtom(display, 'WM_STATE', False);
 end;
 
-procedure icccm_manage(win: PWindow);
+procedure icccm_manage(win: PWMWindow);
 begin
 	sendconf(win);
 end;
 
-procedure icccm_map(win: PWindow);
+procedure icccm_map(win: PWMWindow);
 begin
 	setwmstate(win, NormalState);
 end;
 
-procedure icccm_unmap(win: PWindow);
+procedure icccm_unmap(win: PWMWindow);
 begin
 	setwmstate(win, IconicState);
 end;
 
-procedure icccm_withdraw(win: PWindow);
+procedure icccm_withdraw(win: PWMWindow);
 begin
 	setwmstate(win, WithdrawnState);
 end;
 
-procedure icccm_move(win: PWindow);
+procedure icccm_move(win: PWMWindow);
 begin
 	sendconf(win);
 end;
 
-function icccm_clientmessage(win: PWindow; ep: PXClientMessageEvent): Integer;
+function icccm_clientmessage(win: PWMWindow; ep: PXClientMessageEvent): Integer;
 begin
 	Result := 0;
 
@@ -154,11 +154,11 @@ begin
         end;
 end;
 
-function icccm_propertynotify(win: PWindow; ep: PXPropertyEvent): Integer;
+function icccm_propertynotify(win: PWMWindow; ep: PXPropertyEvent): Integer;
 begin
 	Result := 1;
 
-{	case (ep^.atom) of
+	case (ep^.atom) of
 	 XA_WM_NAME:
 		if (ep^.state <> PropertyDelete) then
 			window_fetchname(win);
@@ -173,10 +173,10 @@ begin
 		window_fetchwmtransientfor(win);
         else
         	Result := 0;
-        end;}
+        end;
 end;
 
-function icccm_delete(win: PWindow): Integer;
+function icccm_delete(win: PWMWindow): Integer;
 begin
 	if (knowsproto(win, WM_DELETE_WINDOW) <> 0) then
         begin
@@ -186,74 +186,75 @@ begin
         else Result := 0;
 end;
 
-function knowsproto(win: PWindow; proto: TAtom): Integer;
+function knowsproto(win: PWMWindow; proto: TAtom): Integer;
 var
 	protocols: PAtom;
-	i, n, found: Integer;
+	i, n: Integer;
+        found: Boolean = False;
 begin
-	found := 0;
 //	clerr();
-{	if (XGetWMProtocols(display, win^.client, @protocols, @n)) then
+	if (XGetWMProtocols(display, win^.client, @protocols, @n) <> 0) then
         begin
-		for (i = 0; !found && i < n; i++) then
-			if (protocols[i] == proto)
-				found = 1;
-                end
-		if (protocols != NULL)
-			XFree(protocols);
-        end;}
+                i := 0;
+		while (not found) and (i < n) do
+                begin
+			if (protocols[i] = proto) then found := True;
+                        Inc(i);
+                end;
+		if (protocols <> nil) then XFree(protocols);
+        end;
 //	sterr();
-	Result := found;
+	Result := Integer(found);
 end;
 
-procedure sendmesg(win: PWindow; type_: TAtom; value: Integer);
+procedure sendmesg(win: PWMWindow; type_: TAtom; value: Integer);
 var
 	ev: TXEvent;
 begin
 	FillChar(ev, sizeof(ev), #0);
 	ev.xclient._type := ClientMessage;
-//	ev.xclient.window := win^.client;
+	ev.xclient.window := win^.client;
 	ev.xclient.message_type := type_;
 	ev.xclient.format := 32;
 	ev.xclient.data.l[0] := value;
 	ev.xclient.data.l[1] := CurrentTime;
 //	clerr();
-//	XSendEvent(display, win^.client, False, 0L, &ev);
+	XSendEvent(display, win^.client, False, 0, @ev);
 //	sterr();
 end;
 
-procedure sendconf(win: PWindow);
+procedure sendconf(win: PWMWindow);
 var
 	conf: TXConfigureEvent;
 begin
 	conf._type := ConfigureNotify;
-//	conf.event := win^.client;
-//	conf.window := win^.client;
-//	conf.x := X(win) + border_width - win->cborder;
-//	conf.y := Y(win) + border_width + button_size + innerborder_width
-//	    - win->cborder;
-//	conf.width := WIDTH(win) - 2 * border_width;
-//	conf.height := HEIGHT(win)
-//	    - (2 * border_width + button_size + innerborder_width);
-//	conf.border_width := win->cborder;
-//	conf.above := None;
-//	conf.override_redirect := False;
+	conf.event := win^.client;
+	conf.window := win^.client;
+	conf.x := win^.widget.dim.x + border_width - win^.cborder;
+	conf.y := win^.widget.dim.y + border_width + button_size + innerborder_width
+	    - win^.cborder;
+	conf.width := win^.widget.dim.width - 2 * border_width;
+	conf.height := win^.widget.dim.height
+	    - (2 * border_width + button_size + innerborder_width);
+	conf.border_width := win^.cborder;
+	conf.above := None;
+	conf.override_redirect := False;
 
 //	clerr();
-//	XSendEvent(display, win->client, False, StructureNotifyMask,
-//	    PXEvent(@&conf));
+	XSendEvent(display, win^.client, False, StructureNotifyMask,
+	    PXEvent(@conf));
 //	sterr();
 end;
 
-procedure setwmstate(win: PWindow; state: Integer);
+procedure setwmstate(win: PWMWindow; state: Integer);
 var
 	data: array[0..1] of Integer;
 begin
 	data[0] := state;
 	data[1] := None;
 //	clerr();
-//	XChangeProperty(display, win->client, WM_STATE, WM_STATE, 32,
-//	    PropModeReplace, (unsigned char *)data, 2);
+	XChangeProperty(display, win^.client, WM_STATE, WM_STATE, 32,
+	    PropModeReplace, pcuchar(Pointer(@data)), 2);
 //	sterr();
 end;
 

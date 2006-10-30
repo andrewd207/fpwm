@@ -37,7 +37,7 @@ uses
 begin
   init();
   widget_init();
-//  window_init();
+  window_init();
   winmenu := menu_create();
   hints_init();
   initclients();
