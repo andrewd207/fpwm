@@ -14,9 +14,11 @@ type
   TfpGUIFrame = class(TXFrame)
   private
     fCanvas: TXWindowCanvas;
+    fFont: TXFont;
   public
    constructor Create(AOwner: TBaseWindowManager; AClientWindow: TWindow; AFrameWindow: TWindow); override;
    property Canvas: TXWindowCanvas read fCanvas write fCanvas;
+   property Font: TXFont read fFont write fFont;
   end;
 
   { TfpGUIWindowManager }
@@ -28,6 +30,7 @@ type
     function CreateXWindow(ARootWindow: TWMRootWindow; const AScreen: PScreen; Geometry: TRect): TWindow;
   public
     function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; override;
+    procedure DestroyWindowFrame(var AWindow: TXFrame); override;
     procedure PaintWindowFrame(AFrame: TXFrame); override;
     property GfxDisplay: TXDisplay read fDisplay;
 
@@ -101,10 +104,10 @@ begin
   Frame := TfpGUIFrame.Create(Self, AChild, FrameWindow);
 
   Colormap := XDefaultColormap(Display, XScreenNumberOfScreen(AScreen));
+  
+  Frame.Font := TXFont.Create(Display, '-adobe-helvetica-medium-r-normal--*-120-*-*-*-*-iso8859-1');
   // create our canvas object to draw on our frame with
-  Font := XLoadQueryFont(Display,
-      '-adobe-helvetica-medium-r-normal--*-120-*-*-*-*-iso8859-1');
-  Frame.Canvas := TXWindowCanvas.Create(ColorMap, GfxDisplay, FrameWindow, Font);
+  Frame.Canvas := TXWindowCanvas.Create(ColorMap, GfxDisplay, FrameWindow, Frame.Font.FontStruct);
 
   
   XSetWindowBorderWidth(Display, Frame.ClientWindow, 0);
@@ -113,6 +116,27 @@ begin
 
   Result := Frame;
   WriteLn('Done Creating window frame');
+end;
+
+procedure TfpGUIWindowManager.DestroyWindowFrame(var AWindow: TXFrame);
+var
+  FrameList: TXFrameList;
+  Frame: TfpGUIFrame;
+begin
+  if AWindow = nil then exit;
+  Frame := TfpGUIFrame(AWindow);
+  // first remove ourselves from the Rootwindow list
+  FrameList := RootWindows.FindFrameListFromWindow(Frame);
+  if FrameList <> nil then begin
+    FrameList.Remove(Frame);
+  end;
+  // now free our FrameWindow
+  XDestroyWindow(Display, Frame.FrameWindow);
+  // free the stuff we created when we created the window
+  Frame.Canvas.Free;
+  Frame.Font.Free;
+  Frame.Free;
+  AWindow := nil;
 end;
 
 procedure TfpGUIWindowManager.PaintWindowFrame(AFrame: TXFrame);

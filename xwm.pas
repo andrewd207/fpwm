@@ -24,13 +24,23 @@ type
   public
     constructor Create(const ADisplayName: String); virtual;
     destructor Destroy; override;
-    function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; virtual; abstract;
     function WindowToFrame(const AWindow: TWindow): TXFrame;
     procedure CreateDisplay(ADisplayName: String); virtual;
     procedure InitWM(QueryWindows: Boolean = True); override;
     procedure MainLoop; override;
+    // procedures to handle windows
+    procedure ConfigureWindow(const AWindow: TXFrame; const AConfigureEv: TXConfigureRequestEvent); virtual;
+    function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; virtual; abstract;
+    procedure DestroyWindowFrame(var AWindow: TXFrame); virtual; abstract;
     procedure MapWindow(const AWindow: TXFrame); virtual;
+    procedure MoveWindow(const AWindow: TXFrame; APosition: TPoint); virtual;
+    procedure ResizeWindow(const AWindow: TXFrame; AWidth, AHeight: Integer); virtual;
     procedure PaintWindowFrame(AFrame: TXFrame); virtual; abstract;
+    procedure ChangeWindowProperty(AWindow: TWindow; AProperty: TAtom;
+                AType: TAtom; AFormat: cint; AMode: cint; AData: Pointer; Elements: cint);
+    // procedures to initialize the ICCCM and Extended WM hints
+    procedure InitICCCMHints; virtual;
+    procedure InitNETHints; virtual;
     property Display: PXDisplay read fDisplay write fDisplay;
     property RootWindows: TWMRootWindowList read fRootWindowList;
   end;
@@ -94,6 +104,8 @@ begin
   fLastErrorHandler := XSetErrorHandler(@X11_Error);
   fRootWindowList := TWMRootWindowList.Create;
   CreateDisplay(ADisplayName);
+  InitICCCMHints;
+  InitNETHints;
 end;
 
 destructor TXWindowManager.Destroy;
@@ -143,23 +155,30 @@ begin
   repeat
     WriteLn('Waiting For Event');
     XNextEvent(Display, @Event);
-    WriteLn('GotEvent: ', Event.xany._type);
     case Event._type of
-      ConfigureRequest:;
+      ConfigureRequest:
+        begin
+          Frame := WindowToFrame(Event.xconfigurerequest.window);
+          if Frame = nil then
+            Frame := RootWindows.Windows[0].AddNewClient(Event.xmaprequest.window);
+          if Frame <> nil then
+            ConfigureWindow(Frame, Event.xconfigurerequest);
+        end;
       MapRequest:
         begin
-          Frame := RootWindows.Windows[0].AddNewClient(Event.xmaprequest.window);
+          Frame := WindowToFrame(Event.xconfigurerequest.window);
           if Frame <> nil then MapWindow(Frame);
         end;
 
-      MapNotify:;
-      UnmapNotify:;
-      CreateNotify:;
+      //MapNotify:;
+      //UnmapNotify:;
+      CreateNotify:;// do we need to do anything here?
       DestroyNotify:
         begin
           Frame := WindowToFrame(Event.xdestroywindow.window);
-          if (Frame <> nil) and (Frame.ClientWindow = Event.xany.window) then
-             Frame.Free;
+          // only react to the destruction of client windows not of our frame windows
+          if (Frame <> nil) and (Frame.ClientWindow = Event.xdestroywindow.window) then
+             DestroyWindowFrame(Frame);
         end;
       Expose:
         begin
@@ -167,7 +186,10 @@ begin
           if (Frame <> nil) and (Frame.FrameWindow = Event.xany.window) then
             PaintWindowFrame(Frame);
         end
-
+      else
+        begin
+          WriteLn('Got Unhandled Event: ', Event.xany._type);
+        end;
     end;
     WriteLn('DoneEvent');
   until fQuit;
@@ -178,14 +200,62 @@ var
  Width,
  Height: Integer;
 begin
+  // this makes it so if we crash the child windows will be remapped to the screen
   XAddToSaveSet(Display, AWindow.ClientWindow);
 
   Width := AWindow.FrameWidth - AWindow.FrameLeftWidth - AWindow.FrameRightWidth;
   Height := AWindow.FrameHeight - AWindow.FrameTopHeight - AWindow.FrameBottomHeight;
   XMapWindow(Display, AWindow.ClientWindow);
-  XResizeWindow(Display, AWindow.ClientWindow, Width, Height);
+
   XRaiseWindow(Display, AWindow.FrameWindow);
   XMapRaised(Display, AWindow.FrameWindow);
+  
+  XSetInputFocus(Display, AWindow.ClientWindow, RevertToPointerRoot, CurrentTime);
+end;
+
+procedure TXWindowManager.MoveWindow(const AWindow: TXFrame; APosition: TPoint
+  );
+begin
+  XMoveWindow(Display, AWindow.FrameWindow, APosition.X, APosition.Y);
+  // TODO Send an event to the client so it knows it moved per the ICCCM
+end;
+
+procedure TXWindowManager.ResizeWindow(const AWindow: TXFrame; AWidth,
+  AHeight: Integer);
+begin
+  AWindow.FrameWidth := AWidth+AWindow.FrameLeftWidth+AWindow.FrameRightWidth;
+  AWindow.FrameHeight := AHeight+AWindow.FrameTopHeight+AWindow.FrameBottomHeight;
+  // resize the Frame to fit the client window
+  XResizeWindow(Display, AWindow.FrameWindow, AWindow.FrameWidth, AWindow.FrameHeight);
+  // resize the client to fit in the frame window
+  XResizeWindow(Display, AWindow.ClientWindow, AWidth, AHeight);
+end;
+
+// AFormat is the size of the type of elements in bits. so a cardinal is 32 char is 8 etc
+// Elements is how many items there are
+// AMode is PropModeAppend, PropModePrepend, or PropModeReplace
+procedure TXWindowManager.ChangeWindowProperty(AWindow: TWindow; AProperty: TAtom;
+  AType: TAtom; AFormat: cint; AMode: cint; AData: Pointer; Elements: cint);
+begin
+  XChangeProperty(Display, AWindow, AProperty, AType, AFormat, AMode, AData, Elements);
+end;
+
+procedure TXWindowManager.InitICCCMHints;
+begin
+  // TODO Initialize ICCCM hints
+end;
+
+procedure TXWindowManager.InitNETHints;
+begin
+  // TODO Initialize FreeDesktop.org hints
+end;
+
+procedure TXWindowManager.ConfigureWindow(const AWindow: TXFrame;
+  const AConfigureEv: TXConfigureRequestEvent);
+begin
+  // Move to the desired position and set the frame size, also the client will be resized
+  MoveWindow(AWindow, Point(AConfigureEv.x, AConfigureEv.y));
+  ResizeWindow(AWindow, AConfigureEv.width, AConfigureEv.height);
 end;
 
 end.

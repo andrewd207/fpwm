@@ -34,6 +34,7 @@ type
     procedure SetFrameWidth(const AValue: Integer); virtual;
   public
     constructor Create(AOwner: TBaseWindowManager; AClientWindow: TWindow; AFrameWindow: TWindow); virtual;
+    destructor Destroy; override;
     property ClientWindow: TWindow read fClientWindow;
     property FrameWindow: TWindow read fFrameWindow;
     property FrameTopHeight: Integer read fFrameTopHeight write SetFrameTopHeight;
@@ -134,6 +135,11 @@ begin
   fFrameRightWidth := 7;
   fFrameTopHeight := 25;
   fFrameBottomHeight := 7;
+end;
+
+destructor TXFrame.Destroy;
+begin
+  inherited Destroy;
 end;
 
 end.

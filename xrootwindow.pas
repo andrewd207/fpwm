@@ -17,11 +17,14 @@ type
     fFrames: TXFrameList;
     fScreen: PScreen;
     fRootWindow: TWindow;
+    procedure SetICCCMHints;
+    procedure SetFreeDesktopHints;
   public
     constructor Create(AOwner: TBaseWindowManager; AScreen: PScreen; AWindow: TWindow);
     destructor Destroy; override;
     function AddNewClient(AWindow: TWindow): TXFrame;
     procedure GrabExistingWindows;
+    procedure SetHints;
     property Frames: TXFrameList read fFrames;
     property Owner: TBaseWindowManager read fOwner;
     property RootWindow: TWindow read fRootWindow;
@@ -37,6 +40,7 @@ type
     procedure SetRootWindow(AIndex: Integer; const AValue: TWMRootWindow);
   public
     procedure Clear; override;
+    function FindFrameListFromWindow(const AWindow: TXFrame): TXFrameList;
     property Windows[AIndex: Integer]: TWMRootWindow read GetRootWindow write SetRootWindow;
   end;
    
@@ -52,12 +56,24 @@ type
 
 { TWMRootWindow }
 
+// this should initialize
+procedure TWMRootWindow.SetICCCMHints;
+begin
+  // TODO Set mandatory ICCCM hints on the rootwindow
+end;
+
+procedure TWMRootWindow.SetFreeDesktopHints;
+begin
+  // TODO Set mandatory FreeDesktop.org hints on the rootwindow
+end;
+
 constructor TWMRootWindow.Create(AOwner: TBaseWindowManager; AScreen: PScreen; AWindow: TWindow);
 begin
   fOwner := AOwner;
   fRootWindow := AWindow;
   fScreen := AScreen;
   fFrames := TXFrameList.Create;
+  SetHints;
 end;
 
 destructor TWMRootWindow.Destroy;
@@ -96,6 +112,13 @@ begin
   end;
 end;
 
+procedure TWMRootWindow.SetHints;
+begin
+  SetICCCMHints;
+  SetFreeDesktopHints;
+  // and any hints specific to our windowmanager here
+end;
+
 { TWMRootWindowList }
 
 function TWMRootWindowList.GetRootWindow(AIndex: Integer): TWMRootWindow;
@@ -115,6 +138,20 @@ var
 begin
   for I := 0 to Count-1 do Windows[I].Free;
   inherited Clear;
+end;
+
+function TWMRootWindowList.FindFrameListFromWindow(const AWindow: TXFrame
+  ): TXFrameList;
+var
+  I: Integer;
+begin
+  Result := nil;
+  for I := 0 to Count-1 do begin
+    if Windows[I].Frames.IndexOf(AWindow) > -1 then begin
+      Result := Windows[I].Frames;
+      Exit;
+    end;
+  end;
 end;
 
 end.
