@@ -12,7 +12,7 @@
       <MainUnit Value="0"/>
       <IconPath Value="./"/>
       <TargetFileExt Value=""/>
-      <ActiveEditorIndexAtStart Value="11"/>
+      <ActiveEditorIndexAtStart Value="3"/>
     </General>
     <VersionInfo>
       <ProjectVersion Value=""/>
@@ -31,63 +31,65 @@
         <LaunchingApplication PathPlusParams="/usr/X11R6/bin/xterm -T 'Lazarus Run Output' -e $(LazarusDir)/tools/runwait.sh $(TargetCmdLine)"/>
       </local>
     </RunParams>
-    <Units Count="52">
+    <RequiredPackages Count="2">
+      <Item1>
+        <PackageName Value="fpGUI_laz"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="fpGFX"/>
+      </Item2>
+    </RequiredPackages>
+    <Units Count="70">
       <Unit0>
         <Filename Value="fpwm.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="fpwm"/>
-        <CursorPos X="1" Y="7"/>
-        <TopLine Value="13"/>
+        <CursorPos X="1" Y="50"/>
+        <TopLine Value="11"/>
         <EditorIndex Value="0"/>
-        <UsageCount Value="46"/>
+        <UsageCount Value="110"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="../../karmen-0.7a/src/button.c"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit1>
       <Unit2>
         <Filename Value="lib.pas"/>
         <UnitName Value="lib"/>
         <CursorPos X="1" Y="7"/>
-        <TopLine Value="1"/>
-        <EditorIndex Value="4"/>
-        <UsageCount Value="22"/>
-        <Loaded Value="True"/>
+        <TopLine Value="133"/>
+        <UsageCount Value="54"/>
       </Unit2>
       <Unit3>
         <Filename Value="button.pas"/>
         <UnitName Value="button"/>
         <CursorPos X="1" Y="7"/>
-        <TopLine Value="1"/>
-        <EditorIndex Value="11"/>
-        <UsageCount Value="22"/>
-        <Loaded Value="True"/>
+        <TopLine Value="10"/>
+        <UsageCount Value="54"/>
       </Unit3>
       <Unit4>
         <Filename Value="icccm.pas"/>
         <UnitName Value="icccm"/>
-        <CursorPos X="41" Y="9"/>
-        <TopLine Value="1"/>
-        <EditorIndex Value="3"/>
-        <UsageCount Value="22"/>
-        <Loaded Value="True"/>
+        <CursorPos X="31" Y="63"/>
+        <TopLine Value="61"/>
+        <UsageCount Value="54"/>
       </Unit4>
       <Unit5>
         <Filename Value="../../karmen-0.7a/src/lib.h"/>
         <CursorPos X="13" Y="74"/>
         <TopLine Value="44"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit5>
       <Unit6>
         <Filename Value="converted/lib.h"/>
         <CursorPos X="11" Y="34"/>
         <TopLine Value="31"/>
-        <UsageCount Value="22"/>
+        <UsageCount Value="16"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit6>
       <Unit7>
@@ -95,13 +97,13 @@
         <UnitName Value="xlib"/>
         <CursorPos X="10" Y="1302"/>
         <TopLine Value="1286"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="9"/>
       </Unit7>
       <Unit8>
         <Filename Value="converted/button.h"/>
         <CursorPos X="15" Y="30"/>
         <TopLine Value="17"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="6"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit8>
       <Unit9>
@@ -109,7 +111,7 @@
         <UnitName Value="x"/>
         <CursorPos X="4" Y="57"/>
         <TopLine Value="41"/>
-        <UsageCount Value="21"/>
+        <UsageCount Value="15"/>
       </Unit9>
       <Unit10>
         <Filename Value="main.pas"/>
@@ -117,29 +119,27 @@
         <UnitName Value="main"/>
         <CursorPos X="1" Y="7"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="13"/>
-        <UsageCount Value="44"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="108"/>
       </Unit10>
       <Unit11>
         <Filename Value="delete.xbm"/>
         <CursorPos X="7" Y="3"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="None"/>
       </Unit11>
       <Unit12>
         <Filename Value="lower.xbm"/>
         <CursorPos X="43" Y="3"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="None"/>
       </Unit12>
       <Unit13>
         <Filename Value="hide.xbm"/>
         <CursorPos X="38" Y="3"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="None"/>
       </Unit13>
       <Unit14>
@@ -147,70 +147,70 @@
         <UnitName Value="xresource"/>
         <CursorPos X="19" Y="107"/>
         <TopLine Value="91"/>
-        <UsageCount Value="15"/>
+        <UsageCount Value="9"/>
       </Unit14>
       <Unit15>
         <Filename Value="/usr/share/fpcsrc/rtl/unix/sysunixh.inc"/>
         <CursorPos X="6" Y="51"/>
         <TopLine Value="21"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="8"/>
       </Unit15>
       <Unit16>
         <Filename Value="converted/global.h"/>
         <CursorPos X="15" Y="47"/>
         <TopLine Value="14"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit16>
       <Unit17>
         <Filename Value="/usr/share/fpcsrc/packages/base/libc/signalh.inc"/>
         <CursorPos X="16" Y="70"/>
         <TopLine Value="52"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit17>
       <Unit18>
         <Filename Value="/usr/share/fpcsrc/rtl/unix/unix.pp"/>
         <UnitName Value="Unix"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="1"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="8"/>
       </Unit18>
       <Unit19>
         <Filename Value="/usr/share/fpcsrc/rtl/unix/bunxovlh.inc"/>
         <CursorPos X="21" Y="77"/>
         <TopLine Value="61"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="8"/>
       </Unit19>
       <Unit20>
         <Filename Value="/usr/share/fpcsrc/rtl/unix/gensigset.inc"/>
         <CursorPos X="1" Y="8"/>
         <TopLine Value="1"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="8"/>
       </Unit20>
       <Unit21>
         <Filename Value="/usr/share/fpcsrc/rtl/unix/bunxh.inc"/>
         <CursorPos X="81" Y="91"/>
         <TopLine Value="73"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit21>
       <Unit22>
         <Filename Value="/usr/share/fpcsrc/rtl/linux/signal.inc"/>
         <CursorPos X="21" Y="174"/>
         <TopLine Value="165"/>
-        <UsageCount Value="14"/>
+        <UsageCount Value="8"/>
       </Unit22>
       <Unit23>
         <Filename Value="converted/main.c"/>
         <CursorPos X="22" Y="404"/>
         <TopLine Value="384"/>
-        <UsageCount Value="20"/>
+        <UsageCount Value="14"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit23>
       <Unit24>
         <Filename Value="converted/window.c"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="66"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit24>
       <Unit25>
@@ -218,22 +218,20 @@
         <UnitName Value="widget"/>
         <CursorPos X="1" Y="7"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="6"/>
-        <UsageCount Value="18"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="50"/>
       </Unit25>
       <Unit26>
         <Filename Value="converted/window.h"/>
         <CursorPos X="32" Y="81"/>
         <TopLine Value="2"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit26>
       <Unit27>
         <Filename Value="converted/widget.h"/>
         <CursorPos X="32" Y="73"/>
         <TopLine Value="41"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit27>
       <Unit28>
@@ -241,81 +239,79 @@
         <UnitName Value="xutil"/>
         <CursorPos X="6" Y="358"/>
         <TopLine Value="274"/>
-        <UsageCount Value="17"/>
+        <UsageCount Value="11"/>
       </Unit28>
       <Unit29>
         <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkwsstdctrls.pp"/>
         <UnitName Value="GtkWSStdCtrls"/>
         <CursorPos X="1" Y="326"/>
         <TopLine Value="308"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit29>
       <Unit30>
         <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkproc.inc"/>
         <CursorPos X="23" Y="8607"/>
         <TopLine Value="8590"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit30>
       <Unit31>
         <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkproc.pp"/>
         <UnitName Value="GTKProc"/>
         <CursorPos X="9" Y="801"/>
         <TopLine Value="786"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
       </Unit31>
       <Unit32>
         <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkwinapi.inc"/>
         <CursorPos X="1" Y="5291"/>
         <TopLine Value="5287"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
       </Unit32>
       <Unit33>
         <Filename Value="../../lazarus/lcl/interfaces/gtk/gtkint.pp"/>
         <UnitName Value="GtkInt"/>
         <CursorPos X="1" Y="73"/>
         <TopLine Value="48"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit33>
       <Unit34>
         <Filename Value="../../lazarus/lcl/interfaces/gtk2/gtk2object.inc"/>
         <CursorPos X="28" Y="869"/>
         <TopLine Value="844"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit34>
       <Unit35>
         <Filename Value="/usr/share/fpcsrc/packages/base/libc/spollh.inc"/>
         <CursorPos X="4" Y="7"/>
         <TopLine Value="1"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit35>
       <Unit36>
         <Filename Value="/usr/share/fpcsrc/rtl/netwlibc/libc.pp"/>
         <UnitName Value="libc"/>
         <CursorPos X="10" Y="1562"/>
         <TopLine Value="1546"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
       </Unit36>
       <Unit37>
         <Filename Value="hints.pas"/>
         <UnitName Value="hints"/>
         <CursorPos X="1" Y="7"/>
-        <TopLine Value="1"/>
-        <EditorIndex Value="9"/>
-        <UsageCount Value="15"/>
-        <Loaded Value="True"/>
+        <TopLine Value="133"/>
+        <UsageCount Value="47"/>
       </Unit37>
       <Unit38>
         <Filename Value="converted/hints.h"/>
         <CursorPos X="1" Y="27"/>
         <TopLine Value="77"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit38>
       <Unit39>
         <Filename Value="converted/icccm.c"/>
         <CursorPos X="1" Y="124"/>
         <TopLine Value="162"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="3"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit39>
       <Unit40>
@@ -323,161 +319,343 @@
         <UnitName Value="grab"/>
         <CursorPos X="1" Y="11"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="2"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="43"/>
       </Unit40>
       <Unit41>
         <Filename Value="menu.pas"/>
         <UnitName Value="menu"/>
         <CursorPos X="1" Y="7"/>
         <TopLine Value="1"/>
-        <EditorIndex Value="8"/>
-        <UsageCount Value="13"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="45"/>
       </Unit41>
       <Unit42>
         <Filename Value="converted/menu.h"/>
         <CursorPos X="1" Y="27"/>
         <TopLine Value="10"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit42>
       <Unit43>
         <Filename Value="converted/menu.c"/>
         <CursorPos X="1" Y="167"/>
         <TopLine Value="148"/>
-        <UsageCount Value="12"/>
+        <UsageCount Value="6"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit43>
       <Unit44>
         <Filename Value="ewmh.pas"/>
         <UnitName Value="ewmh"/>
-        <CursorPos X="1" Y="8"/>
-        <TopLine Value="1"/>
-        <EditorIndex Value="1"/>
-        <UsageCount Value="11"/>
-        <Loaded Value="True"/>
+        <CursorPos X="26" Y="250"/>
+        <TopLine Value="239"/>
+        <UsageCount Value="43"/>
       </Unit44>
       <Unit45>
         <Filename Value="../../karmen-0.7a/src/button.h"/>
         <CursorPos X="8" Y="32"/>
         <TopLine Value="14"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit45>
       <Unit46>
         <Filename Value="converted/grab.c"/>
         <CursorPos X="1" Y="1"/>
         <TopLine Value="50"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit46>
       <Unit47>
         <Filename Value="converted/hints.c"/>
         <CursorPos X="19" Y="9"/>
         <TopLine Value="162"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="4"/>
         <SyntaxHighlighter Value="C++"/>
       </Unit47>
       <Unit48>
         <Filename Value="window.pas"/>
         <UnitName Value="window"/>
-        <CursorPos X="1" Y="7"/>
-        <TopLine Value="1"/>
-        <EditorIndex Value="10"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <CursorPos X="8" Y="507"/>
+        <TopLine Value="580"/>
+        <UsageCount Value="42"/>
       </Unit48>
       <Unit49>
         <Filename Value="resizer.pas"/>
         <UnitName Value="resizer"/>
         <CursorPos X="1" Y="7"/>
-        <TopLine Value="1"/>
-        <EditorIndex Value="5"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <TopLine Value="109"/>
+        <UsageCount Value="42"/>
       </Unit49>
       <Unit50>
         <Filename Value="title.pas"/>
         <UnitName Value="title"/>
         <CursorPos X="1" Y="29"/>
         <TopLine Value="18"/>
-        <EditorIndex Value="7"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="42"/>
       </Unit50>
       <Unit51>
         <Filename Value="window.backup"/>
         <CursorPos X="2" Y="1274"/>
         <TopLine Value="1241"/>
-        <EditorIndex Value="12"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="4"/>
         <SyntaxHighlighter Value="None"/>
       </Unit51>
+      <Unit52>
+        <Filename Value="basewm.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="BaseWM"/>
+        <CursorPos X="65" Y="28"/>
+        <TopLine Value="2"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="83"/>
+        <Loaded Value="True"/>
+      </Unit52>
+      <Unit53>
+        <Filename Value="xwm.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="XWM"/>
+        <CursorPos X="48" Y="186"/>
+        <TopLine Value="152"/>
+        <EditorIndex Value="2"/>
+        <UsageCount Value="83"/>
+        <Loaded Value="True"/>
+      </Unit53>
+      <Unit54>
+        <Filename Value="../../projects/fpwm/wm.pas"/>
+        <UnitName Value="wm"/>
+        <CursorPos X="41" Y="440"/>
+        <TopLine Value="399"/>
+        <UsageCount Value="42"/>
+      </Unit54>
+      <Unit55>
+        <Filename Value="xrootwindow.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="XRootWindow"/>
+        <CursorPos X="43" Y="70"/>
+        <TopLine Value="69"/>
+        <EditorIndex Value="4"/>
+        <UsageCount Value="83"/>
+        <Loaded Value="True"/>
+      </Unit55>
+      <Unit56>
+        <Filename Value="xframes.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="XFrames"/>
+        <CursorPos X="23" Y="132"/>
+        <TopLine Value="100"/>
+        <EditorIndex Value="5"/>
+        <UsageCount Value="83"/>
+        <Loaded Value="True"/>
+      </Unit56>
+      <Unit57>
+        <Filename Value="../../fpc/packages/extra/x11/x.pp"/>
+        <UnitName Value="x"/>
+        <CursorPos X="14" Y="137"/>
+        <TopLine Value="392"/>
+        <UsageCount Value="38"/>
+      </Unit57>
+      <Unit58>
+        <Filename Value="xfpguiwm.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="XfpGUIWM"/>
+        <CursorPos X="21" Y="81"/>
+        <TopLine Value="66"/>
+        <EditorIndex Value="3"/>
+        <UsageCount Value="74"/>
+        <Loaded Value="True"/>
+      </Unit58>
+      <Unit59>
+        <Filename Value="../../fpgui/fpgfx/src/x11/gfx_x11.pp"/>
+        <UnitName Value="GFX_X11"/>
+        <CursorPos X="34" Y="1243"/>
+        <TopLine Value="1219"/>
+        <UsageCount Value="37"/>
+      </Unit59>
+      <Unit60>
+        <Filename Value="../../fpgui/fpgui/src/fpgui.pp"/>
+        <UnitName Value="fpGUI"/>
+        <CursorPos X="13" Y="121"/>
+        <TopLine Value="97"/>
+        <UsageCount Value="5"/>
+      </Unit60>
+      <Unit61>
+        <Filename Value="../../fpgui/fpgui/src/form.inc"/>
+        <CursorPos X="54" Y="235"/>
+        <TopLine Value="227"/>
+        <UsageCount Value="5"/>
+      </Unit61>
+      <Unit62>
+        <Filename Value="../../fpgui/fpgui/src/widget.inc"/>
+        <CursorPos X="18" Y="1261"/>
+        <TopLine Value="1229"/>
+        <UsageCount Value="5"/>
+      </Unit62>
+      <Unit63>
+        <Filename Value="../../fpc/rtl/objpas/classes/classesh.inc"/>
+        <CursorPos X="17" Y="1345"/>
+        <TopLine Value="1325"/>
+        <UsageCount Value="5"/>
+      </Unit63>
+      <Unit64>
+        <Filename Value="../../fpgui/fpgui/src/bin.inc"/>
+        <CursorPos X="24" Y="25"/>
+        <TopLine Value="5"/>
+        <UsageCount Value="5"/>
+      </Unit64>
+      <Unit65>
+        <Filename Value="../../fpgui/fpgui/src/container.inc"/>
+        <CursorPos X="29" Y="25"/>
+        <TopLine Value="5"/>
+        <UsageCount Value="5"/>
+      </Unit65>
+      <Unit66>
+        <Filename Value="../../fpgui/fpgfx/src/gfxbase.pp"/>
+        <UnitName Value="GfxBase"/>
+        <CursorPos X="3" Y="73"/>
+        <TopLine Value="89"/>
+        <UsageCount Value="11"/>
+      </Unit66>
+      <Unit67>
+        <Filename Value="../../projects/fpwm/fpwm.lpr"/>
+        <UnitName Value="fpwm"/>
+        <CursorPos X="30" Y="16"/>
+        <TopLine Value="25"/>
+        <UsageCount Value="37"/>
+      </Unit67>
+      <Unit68>
+        <Filename Value="../../fpc/packages/extra/x11/xlib.pp"/>
+        <UnitName Value="xlib"/>
+        <CursorPos X="10" Y="1256"/>
+        <TopLine Value="1236"/>
+        <UsageCount Value="10"/>
+      </Unit68>
+      <Unit69>
+        <Filename Value="../../fpc/packages/extra/x11/xutil.pp"/>
+        <UnitName Value="xutil"/>
+        <CursorPos X="61" Y="239"/>
+        <TopLine Value="219"/>
+        <UsageCount Value="14"/>
+      </Unit69>
     </Units>
-    <JumpHistory Count="15" HistoryIndex="14">
+    <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
-        <Filename Value="fpwm.pas"/>
-        <Caret Line="35" Column="15" TopLine="13"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="127" Column="34" TopLine="100"/>
       </Position1>
       <Position2>
-        <Filename Value="window.pas"/>
-        <Caret Line="10" Column="11" TopLine="1"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="80" Column="23" TopLine="80"/>
       </Position2>
       <Position3>
-        <Filename Value="window.pas"/>
-        <Caret Line="27" Column="1" TopLine="19"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position3>
       <Position4>
-        <Filename Value="fpwm.pas"/>
-        <Caret Line="35" Column="30" TopLine="13"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="48" Column="58" TopLine="28"/>
       </Position4>
       <Position5>
-        <Filename Value="main.pas"/>
-        <Caret Line="8" Column="17" TopLine="1"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="86" Column="51" TopLine="66"/>
       </Position5>
       <Position6>
-        <Filename Value="window.pas"/>
-        <Caret Line="27" Column="1" TopLine="1"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="109" Column="24" TopLine="89"/>
       </Position6>
       <Position7>
-        <Filename Value="window.pas"/>
-        <Caret Line="30" Column="29" TopLine="13"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="111" Column="39" TopLine="91"/>
       </Position7>
       <Position8>
-        <Filename Value="window.pas"/>
-        <Caret Line="1327" Column="2" TopLine="1312"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="113" Column="19" TopLine="93"/>
       </Position8>
       <Position9>
-        <Filename Value="window.pas"/>
-        <Caret Line="618" Column="1" TopLine="604"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="127" Column="35" TopLine="102"/>
       </Position9>
       <Position10>
-        <Filename Value="window.backup"/>
-        <Caret Line="254" Column="1" TopLine="221"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="1" Column="1" TopLine="1"/>
       </Position10>
       <Position11>
-        <Filename Value="window.backup"/>
-        <Caret Line="158" Column="1" TopLine="146"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="48" Column="25" TopLine="28"/>
       </Position11>
       <Position12>
-        <Filename Value="window.pas"/>
-        <Caret Line="158" Column="1" TopLine="141"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="86" Column="51" TopLine="66"/>
       </Position12>
       <Position13>
-        <Filename Value="window.pas"/>
-        <Caret Line="1275" Column="1" TopLine="1243"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="109" Column="24" TopLine="89"/>
       </Position13>
       <Position14>
-        <Filename Value="window.pas"/>
-        <Caret Line="48" Column="1" TopLine="35"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="111" Column="39" TopLine="91"/>
       </Position14>
       <Position15>
-        <Filename Value="window.pas"/>
-        <Caret Line="420" Column="8" TopLine="403"/>
+        <Filename Value="xfpguiwm.pas"/>
+        <Caret Line="113" Column="19" TopLine="93"/>
       </Position15>
+      <Position16>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="14" Column="31" TopLine="1"/>
+      </Position16>
+      <Position17>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="21" Column="20" TopLine="1"/>
+      </Position17>
+      <Position18>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="22" Column="21" TopLine="2"/>
+      </Position18>
+      <Position19>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="24" Column="16" TopLine="4"/>
+      </Position19>
+      <Position20>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="31" Column="32" TopLine="11"/>
+      </Position20>
+      <Position21>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="32" Column="33" TopLine="12"/>
+      </Position21>
+      <Position22>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="34" Column="28" TopLine="14"/>
+      </Position22>
+      <Position23>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="41" Column="82" TopLine="21"/>
+      </Position23>
+      <Position24>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="42" Column="85" TopLine="22"/>
+      </Position24>
+      <Position25>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="43" Column="70" TopLine="23"/>
+      </Position25>
+      <Position26>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="101" Column="36" TopLine="81"/>
+      </Position26>
+      <Position27>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="103" Column="21" TopLine="83"/>
+      </Position27>
+      <Position28>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="104" Column="18" TopLine="84"/>
+      </Position28>
+      <Position29>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="107" Column="37" TopLine="87"/>
+      </Position29>
+      <Position30>
+        <Filename Value="xframes.pas"/>
+        <Caret Line="132" Column="3" TopLine="100"/>
+      </Position30>
     </JumpHistory>
   </ProjectOptions>
   <CompilerOptions>

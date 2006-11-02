@@ -32,15 +32,20 @@ uses
   { Free Pascal Units }
   SysUtils,
   { Units from fpwm }
-  button, hints, lib, main, menu, widget, window;
-
+  //button, hints, lib, main, menu, widget, window, Unit1;
+  BaseWM, xlib, XWM, XfpGUIWM;
 begin
-  init();
+  with TfpGUIWindowManager.Create('') do begin
+    InitWM(True);
+    MainLoop;
+    Free;
+  end;
+  {init();
   widget_init();
   window_init();
   winmenu := menu_create();
   hints_init();
   initclients();
-  mainloop();
+  mainloop();}
 end.
 
