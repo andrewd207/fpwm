@@ -5,7 +5,8 @@ unit XWM;
 interface
 
 uses
-  Classes, Sysutils, X, Xlib, XAtom, ctypes, BaseWM, XRootWindow, XFrames;
+  Classes, Sysutils, fpGui, X, Xlib, XAtom, ctypes, BaseWM, XRootWindow,
+  XFrames, NETAtoms, XAtoms;
   
 type
 
@@ -20,6 +21,7 @@ type
     fDisplay: PXDisplay;
     fRootWindowList: TWMRootWindowList;
     fLastErrorHandler: TXErrorHandler;
+    fNetAtoms: TNetAtoms;
     function GrabRootWindows: Boolean;
   public
     constructor Create(const ADisplayName: String); virtual;
@@ -28,20 +30,36 @@ type
     procedure CreateDisplay(ADisplayName: String); virtual;
     procedure InitWM(QueryWindows: Boolean = True); override;
     procedure MainLoop; override;
-    // procedures to handle windows
-    procedure ConfigureWindow(const AWindow: TXFrame; const AConfigureEv: TXConfigureRequestEvent); virtual;
+    function XEventCB(const AEvent: TXEvent): Boolean; virtual;
+    // create and destroy frame windows
     function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; virtual; abstract;
     procedure DestroyWindowFrame(var AWindow: TXFrame); virtual; abstract;
+    // procedures to handle windows
+    procedure ConfigureWindow(const AWindow: TXFrame; const AConfigureEv: TXConfigureRequestEvent); virtual;
     procedure MapWindow(const AWindow: TXFrame); virtual;
     procedure MoveWindow(const AWindow: TXFrame; APosition: TPoint); virtual;
     procedure ResizeWindow(const AWindow: TXFrame; AWidth, AHeight: Integer); virtual;
     procedure PaintWindowFrame(AFrame: TXFrame); virtual; abstract;
+    function  CloseWindowNice(const AWindow: TWindow): Boolean; virtual;
+    procedure CloseWindowDirty(const AWindow: TWindow); virtual;
+    // methods to send clients messages
+    procedure SendXMessage(const ADestWindow; AMessage: PXEvent; AMask: LongWord);
+    procedure SendXClientMessage(const ADestWindow: TWindow; AType: TAtom);
+    // methods responding to ClientMessages
+    function HandleClientMessage(const AWindow: TXFrame; const AClientEv: TXClientMessageEvent): Boolean; virtual;
+    procedure NetWMMoveResize(const AWindow: TXFrame; XOffset, YOffset: Integer; Direction: Integer; Button: Integer; FromApp: Boolean); virtual; abstract;
+    procedure NetCloseWindow(const AWindow: TXFrame; ATimeStamp: Integer; FromApp: Boolean); virtual; abstract;
+    // manage window properties
     procedure ChangeWindowProperty(AWindow: TWindow; AProperty: TAtom;
-                AType: TAtom; AFormat: cint; AMode: cint; AData: Pointer; Elements: cint);
+                AType: TAtom; AFormat: cint; AMode: cint; const AData: Pointer; Elements: cint);
+    procedure DeleteWindowProperty(AWindow: TWindow; AProperty: TAtom);
+    function WindowSupportsProto(AWindow: TWindow; AProto: TAtom): Boolean;
     // procedures to initialize the ICCCM and Extended WM hints
     procedure InitICCCMHints; virtual;
     procedure InitNETHints; virtual;
+    procedure InitAtoms; virtual;
     property Display: PXDisplay read fDisplay write fDisplay;
+    property _NET: TNetAtoms read fNetAtoms;
     property RootWindows: TWMRootWindowList read fRootWindowList;
   end;
   
@@ -104,8 +122,7 @@ begin
   fLastErrorHandler := XSetErrorHandler(@X11_Error);
   fRootWindowList := TWMRootWindowList.Create;
   CreateDisplay(ADisplayName);
-  InitICCCMHints;
-  InitNETHints;
+  InitAtoms;
 end;
 
 destructor TXWindowManager.Destroy;
@@ -148,51 +165,71 @@ begin
 end;
 
 procedure TXWindowManager.MainLoop;
-var
-  Event: TXEvent;
-  Frame: TXFrame;
 begin
-  repeat
-    WriteLn('Waiting For Event');
-    XNextEvent(Display, @Event);
-    case Event._type of
-      ConfigureRequest:
-        begin
-          Frame := WindowToFrame(Event.xconfigurerequest.window);
-          if Frame = nil then
-            Frame := RootWindows.Windows[0].AddNewClient(Event.xmaprequest.window);
-          if Frame <> nil then
-            ConfigureWindow(Frame, Event.xconfigurerequest);
-        end;
-      MapRequest:
-        begin
-          Frame := WindowToFrame(Event.xconfigurerequest.window);
-          if Frame <> nil then MapWindow(Frame);
-        end;
+  Application.Run;
+end;
 
-      //MapNotify:;
-      //UnmapNotify:;
-      CreateNotify:;// do we need to do anything here?
-      DestroyNotify:
-        begin
-          Frame := WindowToFrame(Event.xdestroywindow.window);
-          // only react to the destruction of client windows not of our frame windows
-          if (Frame <> nil) and (Frame.ClientWindow = Event.xdestroywindow.window) then
-             DestroyWindowFrame(Frame);
+function TXWindowManager.XEventCB(const AEvent: TXEvent): Boolean;
+var
+  Frame: TXFrame;
+  RootWindow: TWMRootWindow;
+begin
+  Result := False;
+  //Return True to stop the event from being handled by the toolkit
+  case AEvent._type of
+    ConfigureRequest:
+      begin
+        Frame := WindowToFrame(AEvent.xconfigurerequest.window);
+        RootWindow := RootWindows.RootWindowFromXWindow(AEvent.xmaprequest.parent);
+        if  (Frame = nil) and (RootWindow <> nil)
+        then
+          Frame := RootWindow.AddNewClient(AEvent.xmaprequest.window);
+        if Frame <> nil then
+          ConfigureWindow(Frame, AEvent.xconfigurerequest);
+        Result := True;
+      end;
+    MapRequest:
+      begin
+        Frame := WindowToFrame(AEvent.xconfigurerequest.window);
+        if Frame <> nil then begin
+          MapWindow(Frame);
+          Result := True;
         end;
-      Expose:
-        begin
-          Frame := WindowToFrame(Event.xexpose.window);
-          if (Frame <> nil) and (Frame.FrameWindow = Event.xany.window) then
-            PaintWindowFrame(Frame);
-        end
-      else
-        begin
-          WriteLn('Got Unhandled Event: ', Event.xany._type);
+      end;
+    ClientMessage:
+      begin
+        Frame := WindowToFrame(AEvent.xclient.window);
+        if Frame <> nil then begin
+          Result := HandleClientMessage(Frame, AEvent.xclient);
         end;
-    end;
-    WriteLn('DoneEvent');
-  until fQuit;
+      end;
+    //MapNotify:;
+    //UnmapNotify:;
+    //CreateNotify:;// do we need to do anything here?
+    DestroyNotify:
+      begin
+        Frame := WindowToFrame(AEvent.xdestroywindow.window);
+        // only react to the destruction of client windows not of our frame windows
+        if (Frame <> nil) and (Frame.ClientWindow = AEvent.xdestroywindow.window) then begin
+          DestroyWindowFrame(Frame);
+          Result := True;
+        end;
+      end;
+    Expose:
+      begin
+        Frame := WindowToFrame(AEvent.xexpose.window);
+        if (Frame <> nil) and (Frame.FrameWindow = AEvent.xany.window) then begin
+          PaintWindowFrame(Frame);
+          Result := True;
+        end;
+      end
+    else
+      begin
+        WriteLn('Got Unhandled Event: ', AEvent.xany._type);
+        Result := False;
+      end;
+  end;
+  WriteLn('DoneEvent');
 end;
 
 procedure TXWindowManager.MapWindow(const AWindow: TXFrame);
@@ -231,23 +268,88 @@ begin
   XResizeWindow(Display, AWindow.ClientWindow, AWidth, AHeight);
 end;
 
+function TXWindowManager.CloseWindowNice(const AWindow: TWindow): Boolean;
+begin
+  Result := False;
+  if WindowSupportsProto(AWindow, WM_DELETE_WINDOW) then begin
+    Result := True;
+    
+  end;
+
+end;
+
+procedure TXWindowManager.CloseWindowDirty(const AWindow: TWindow);
+begin
+  // not very nice is it? >:D
+  XKillClient(Display, AWindow);
+end;
+
+procedure TXWindowManager.SendXMessage(const ADestWindow; AMessage: PXEvent; AMask: LongWord);
+begin
+  //XSendEvent(Display, ADestWindow, True; AMask; AMessage);
+end;
+
+procedure TXWindowManager.SendXClientMessage(const ADestWindow: TWindow; AType: TAtom);
+var
+Ev : TXClientMessageEvent;
+begin
+  Ev._type := ClientMessage;
+  Ev.window := ADestWindow;
+  Ev.message_type := AType;
+  //Ev.data :=;
+  //SendXmessage, AWindow, True);
+  //XSendEvent(para1:PDisplay; para2:TWindow; para3:TBool; para4:clong; para5:PXEvent):TStatus;cdecl;external libX11;
+end;
+
 // AFormat is the size of the type of elements in bits. so a cardinal is 32 char is 8 etc
 // Elements is how many items there are
 // AMode is PropModeAppend, PropModePrepend, or PropModeReplace
 procedure TXWindowManager.ChangeWindowProperty(AWindow: TWindow; AProperty: TAtom;
-  AType: TAtom; AFormat: cint; AMode: cint; AData: Pointer; Elements: cint);
+  AType: TAtom; AFormat: cint; AMode: cint; const AData: Pointer; Elements: cint);
 begin
   XChangeProperty(Display, AWindow, AProperty, AType, AFormat, AMode, AData, Elements);
 end;
 
+procedure TXWindowManager.DeleteWindowProperty(AWindow: TWindow; AProperty: TAtom
+  );
+begin
+  XDeleteProperty(Display, AWindow, AProperty);
+end;
+
+function TXWindowManager.WindowSupportsProto(AWindow: TWindow; AProto: TAtom
+  ): Boolean;
+var
+Protocols: PAtom;
+I, ProtoCount: Integer;
+begin
+  Result := False;
+  if (XGetWMProtocols(display, AWindow, @Protocols, @ProtoCount) <> 0) then begin
+    for I := 0 to ProtoCount-1 do begin
+      if (Protocols[i] = AProto) then begin
+        Result := True;
+        Break;
+      end;
+    end;
+    if (Protocols <> nil) then XFree(Protocols);
+  end;
+end;
+
 procedure TXWindowManager.InitICCCMHints;
 begin
-  // TODO Initialize ICCCM hints
+  // currently all ICCCM atoms are defined in XAtom;
 end;
 
 procedure TXWindowManager.InitNETHints;
 begin
-  // TODO Initialize FreeDesktop.org hints
+  Init_NETAtoms(fDisplay, fNetAtoms);
+end;
+
+procedure TXWindowManager.InitAtoms;
+begin
+  InitICCCMHints;
+  InitNETHints;
+  WM_DELETE_WINDOW := XInternAtom(Display, 'WM_DELETE_WINDOW', False);
+
 end;
 
 procedure TXWindowManager.ConfigureWindow(const AWindow: TXFrame;
@@ -256,6 +358,41 @@ begin
   // Move to the desired position and set the frame size, also the client will be resized
   MoveWindow(AWindow, Point(AConfigureEv.x, AConfigureEv.y));
   ResizeWindow(AWindow, AConfigureEv.width, AConfigureEv.height);
+end;
+
+function TXWindowManager.HandleClientMessage(const AWindow: TXFrame;
+  const AClientEv: TXClientMessageEvent): Boolean;
+var
+Atom: TAtom;
+begin
+  //Return False to not eat the event
+  Result := False;
+  Atom := AClientEv.message_type;
+  if Atom = _NET[_MOVERESIZE_WINDOW] then
+  begin
+    WriteLn('_NET[_MOVERESIZE_WINDOW]');
+  end
+  else if Atom =_NET[_WM_MOVERESIZE] then
+  begin
+    NetWMMoveResize(AWindow,
+              AClientEv.data.l[0], // x_root
+              AClientEv.data.l[1], // y_root
+              AClientEv.data.l[2], // direction
+              AClientEv.data.l[3], // button
+              AClientEv.data.l[4]=1);// source (1 for regular apps 2 for pagers or other special apps)
+    Result := True;
+  end
+  else if Atom = _NET[_CLOSE_WINDOW] then
+  begin
+    WriteLn('_NET[_CLOSE_WINDOW]');
+  end
+  else if Atom = _NET[_RESTACK_WINDOW] then
+  begin
+  end
+  else if Atom = _NET[_REQUEST_FRAME_EXTENTS] then
+  begin
+  end
+  else WriteLn('Unhandled Client Message');
 end;
 
 end.

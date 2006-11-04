@@ -5,7 +5,8 @@ unit XfpGUIWM;
 interface
 
 uses
-  Classes, BaseWM, X, XLib, XUtil, XAtom, ctypes, XWM, XFrames, XRootWindow, GfxBase, Gfx_X11;
+  Classes, BaseWM, X, XLib, XUtil, XAtom, ctypes, XWM, XFrames, XRootWindow,
+  fpGui, GfxBase, Gfx_X11;
   
 type
 
@@ -15,6 +16,7 @@ type
   private
     fCanvas: TXWindowCanvas;
     fFont: TXFont;
+    fpGuiWidow: TForm;
   public
    constructor Create(AOwner: TBaseWindowManager; AClientWindow: TWindow; AFrameWindow: TWindow); override;
    property Canvas: TXWindowCanvas read fCanvas write fCanvas;
@@ -25,14 +27,18 @@ type
 
   TfpGUIWindowManager = class(TXWindowManager)
   private
-    fDisplay: TXDisplay;
+    App: TApplication;
+    fGfxDisplay: TXDisplay;
     procedure CreateDisplay(ADisplayName: String); override;
     function CreateXWindow(ARootWindow: TWMRootWindow; const AScreen: PScreen; Geometry: TRect): TWindow;
   public
     function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; override;
     procedure DestroyWindowFrame(var AWindow: TXFrame); override;
     procedure PaintWindowFrame(AFrame: TXFrame); override;
-    property GfxDisplay: TXDisplay read fDisplay;
+    // procedure for client events handling
+    procedure NetWMMoveResize(const AWindow: TXFrame; XOffset, YOffset: Integer; Direction: Integer; Button: Integer; FromApp: Boolean); override;
+    procedure NetCloseWindow(const AWindow: TXFrame; ATimeStamp: Integer; FromApp: Boolean); override;
+    property GfxDisplay: TXDisplay read fGfxDisplay;
 
   end;
 
@@ -42,13 +48,14 @@ implementation
 
 procedure TfpGUIWindowManager.CreateDisplay(ADisplayName: String);
 begin
-  fDisplay := TXDisplay.Create;
-  Display := fDisplay.Handle;
-  fDisplay.DisplayName := ADisplayName;
+  fGfxDisplay := TXDisplay(Application.Display);
+  fGfxDisplay.EventFilter := @XEventCB;
+  Display := fGfxDisplay.Handle;
+  fGfxDisplay.DisplayName := ADisplayName;
 end;
 
 
-// IMPORTANT!! The Width and Height of the window must be the border size
+// IMPORTANT!! The Width and Height of the window must include the border size
 function TfpGUIWindowManager.CreateXWindow(ARootWindow: TWMRootWindow; const AScreen: PScreen; Geometry: TRect): TWindow;
 var
   FrameAttributes : TXSetWindowAttributes;
@@ -61,7 +68,8 @@ begin
 
   Result := XCreateWindow(Display, ARootWindow.RootWindow,
                              Geometry.Left, Geometry.Top,
-                             Geometry.Right-Geometry.Left, Geometry.Bottom-Geometry.Left, 0,
+                             Geometry.Right-Geometry.Left, Geometry.Bottom-Geometry.Left,
+                             0,
                              DefaultDepthOfScreen(AScreen), CopyFromParent,
                              DefaultVisualOfScreen(AScreen),
                              CWOverrideRedirect or CWBorderPixel or CWEventMask,
@@ -126,7 +134,7 @@ begin
   if AWindow = nil then exit;
   Frame := TfpGUIFrame(AWindow);
   // first remove ourselves from the Rootwindow list
-  FrameList := RootWindows.FindFrameListFromWindow(Frame);
+  FrameList := RootWindows.FrameListFromWindow(Frame);
   if FrameList <> nil then begin
     FrameList.Remove(Frame);
   end;
@@ -146,7 +154,7 @@ var
 begin
   WriteLn('Painting');
   Frame := TfpGUIFrame(AFrame);
-  Arect.Top := 0;
+  ARect.Top := 0;
   ARect.Left := 0;
   Arect.Right := AFrame.FrameWidth;
   ARect.Bottom := AFrame.FrameHeight;
@@ -155,6 +163,30 @@ begin
   Frame.Canvas.SetColor(colWhite);
   Frame.Canvas.TextOut(Point(7, 7),'fpwm Managed Window');
 
+end;
+
+procedure TfpGUIWindowManager.NetWMMoveResize(const AWindow: TXFrame; XOffset,
+  YOffset: Integer; Direction: Integer; Button: Integer; FromApp: Boolean);
+begin
+  // TODO Resize window
+  // we can assume that the mouse is down, so we have to track the mouse
+  // and either draw a rect to what the window will be resized to or actually
+  // resize the window as we move the mouse
+  
+  // XOffset and YOffset is the mouse position inside the window
+end;
+
+procedure TfpGUIWindowManager.NetCloseWindow(const AWindow: TXFrame;
+  ATimeStamp: Integer; FromApp: Boolean);
+begin
+  // TODO Close window
+  // if WM_DELETE_WINDOW is in the windows supported protocols we should send it that
+  // it will either close or not if the client doesn't want to.
+  // if it doesn't support the WM_DELETE_WINDOW protocol we send XCLientKill
+  if not CloseWindowNice(AWindow.ClientWindow)
+    then CloseWindowDirty(AWindow.ClientWindow);
+  // we can usw _NET_WM_PING to see if the application is not responding
+  // then after a timeout
 end;
 
 { TfpGUIFrame }

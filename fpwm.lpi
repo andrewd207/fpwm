@@ -19,7 +19,6 @@
     </VersionInfo>
     <PublishOptions>
       <Version Value="2"/>
-      <IgnoreBinaries Value="False"/>
       <IncludeFileFilter Value="*.(pas|pp|inc|lfm|lpr|lrs|lpi|lpk|sh|xml)"/>
       <ExcludeFileFilter Value="*.(bak|ppu|ppw|o|so);*~;backup"/>
     </PublishOptions>
@@ -37,7 +36,7 @@
         <PackageName Value="fpGFX"/>
       </Item2>
     </RequiredPackages>
-    <Units Count="7">
+    <Units Count="9">
       <Unit0>
         <Filename Value="fpwm.pas"/>
         <IsPartOfProject Value="True"/>
@@ -73,6 +72,16 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="XfpGUIWM"/>
       </Unit6>
+      <Unit7>
+        <Filename Value="netatoms.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="NETAtoms"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="xatoms.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="XAtoms"/>
+      </Unit8>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

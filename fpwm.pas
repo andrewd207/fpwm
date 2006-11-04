@@ -33,11 +33,15 @@ uses
   SysUtils,
   { Units from fpwm }
   //button, hints, lib, main, menu, widget, window, Unit1;
-  BaseWM, xlib, XWM, XfpGUIWM;
+  fpGui, BaseWM, xlib, XWM, XfpGUIWM;
+var tmpform: TForm;
 begin
   with TfpGUIWindowManager.Create('') do begin
     InitWM(True);
+    // a hack to get around a limitation of fpgui currently
+    tmpForm := TForm.Create(nil);
     MainLoop;
+    tmpform.free;
     Free;
   end;
   {init();
