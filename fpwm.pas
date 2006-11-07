@@ -3,7 +3,7 @@
  }
 
 {
- * Copyright (c) 2006 Felipe Monteiro de Carvalho, Daniel Franzini
+ * Copyright (c) 2006 Felipe Monteiro de Carvalho, Daniel Franzini, Andrew Haines
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -26,15 +26,20 @@
  }
 program fpwm;
 
-{$mode objfpc}{$H+}
+{$ifdef fpc}
+  {$mode objfpc}{$H+}
+{$endif}
 
 uses
   { Free Pascal Units }
-  SysUtils,
-  { Units from fpwm }
-  //button, hints, lib, main, menu, widget, window, Unit1;
-  fpGui, BaseWM, xlib, XWM, XfpGUIWM;
-var tmpform: TForm;
+  SysUtils, xlib,
+  { Fpwm Units }
+  fpGui, BaseWM, XWM, XfpGUIWM,
+  { FpGUI Units }
+  fpGui;
+
+var
+  tmpform: TForm;
 begin
   with TfpGUIWindowManager.Create('') do begin
     InitWM(True);
@@ -44,12 +49,4 @@ begin
     tmpform.free;
     Free;
   end;
-  {init();
-  widget_init();
-  window_init();
-  winmenu := menu_create();
-  hints_init();
-  initclients();
-  mainloop();}
 end.
-
