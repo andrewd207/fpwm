@@ -22,6 +22,7 @@ type
     fRootWindowList: TWMRootWindowList;
     fLastErrorHandler: TXErrorHandler;
     fNetAtoms: TNetAtoms;
+    fCurrentEvent: PXEvent;
     function GrabRootWindows: Boolean;
   public
     constructor Create(const ADisplayName: String); virtual;
@@ -30,7 +31,9 @@ type
     procedure CreateDisplay(ADisplayName: String); virtual;
     procedure InitWM(QueryWindows: Boolean = True); override;
     procedure MainLoop; override;
+    // event related methods
     function XEventCB(const AEvent: TXEvent): Boolean; virtual;
+    function GetCurrentEvent: PXEvent;
     // create and destroy frame windows
     function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; virtual; abstract;
     procedure DestroyWindowFrame(var AWindow: TXFrame); virtual; abstract;
@@ -39,11 +42,12 @@ type
     procedure MapWindow(const AWindow: TXFrame); virtual;
     procedure MoveWindow(const AWindow: TXFrame; APosition: TPoint); virtual;
     procedure ResizeWindow(const AWindow: TXFrame; AWidth, AHeight: Integer); virtual;
-    procedure PaintWindowFrame(AFrame: TXFrame); virtual; abstract;
+    function PaintWindowFrame(AFrame: TXFrame): Boolean; virtual; abstract;
     function  CloseWindowNice(const AWindow: TWindow): Boolean; virtual;
     procedure CloseWindowDirty(const AWindow: TWindow); virtual;
-    // methods to send clients messages
-    procedure SendXMessage(const ADestWindow; AMessage: PXEvent; AMask: LongWord);
+    // methods to send X messages
+    procedure SendXSimpleMessage(const ADestWindow: TWindow; AMessage: TAtom; AValue: Integer);
+    procedure SendXMessage(const ADestWindow: TWindow; AMessage: PXEvent; AMask: LongWord);
     procedure SendXClientMessage(const ADestWindow: TWindow; AType: TAtom);
     // methods responding to ClientMessages
     function HandleClientMessage(const AWindow: TXFrame; const AClientEv: TXClientMessageEvent): Boolean; virtual;
@@ -54,6 +58,7 @@ type
                 AType: TAtom; AFormat: cint; AMode: cint; const AData: Pointer; Elements: cint);
     procedure DeleteWindowProperty(AWindow: TWindow; AProperty: TAtom);
     function WindowSupportsProto(AWindow: TWindow; AProto: TAtom): Boolean;
+    function GetWindowTitles(const AWindow: TWindow; var MappedTitle, UnmappedTitle: String): Boolean;
     // procedures to initialize the ICCCM and Extended WM hints
     procedure InitICCCMHints; virtual;
     procedure InitNETHints; virtual;
@@ -140,15 +145,21 @@ var
   J: Integer;
   Frames: TXFrameList;
 begin
+  Writeln('Looking for TXFrame for window: ', AWindow);
   Result := nil;
   for I := 0 to RootWindows.Count-1 do begin
+    if Assigned(Result) then Break;
     Frames := RootWindows.Windows[I].Frames;
     for J := 0 to Frames.Count-1 do begin
       if (Frames.Frame[J].ClientWindow = AWindow)
       or (Frames.Frame[J].FrameWindow = AWindow)
-      then Exit(Frames.Frame[J]);
+      then begin
+         Result := Frames.Frame[J];
+         Break;
+      end;
     end;
   end;
+  Writeln('Found TXFrame for : ', AWindow, ' = ', Assigned(Result));
 end;
 
 procedure TXWindowManager.InitWM(QueryWindows: Boolean = True);
@@ -169,28 +180,63 @@ begin
   Application.Run;
 end;
 
+function GetXEventName(Event: LongInt): String;
+const
+  EventNames: array[2..34] of String = (
+    'KeyPress', 'KeyRelease', 'ButtonPress', 'ButtonRelease', 'MotionNotify',
+    'EnterNotify', 'LeaveNotify', 'FocusIn', 'FocusOut', 'KeymapNotify',
+    'Expose', 'GraphicsExpose', 'NoExpose', 'VisibilityNotify', 'CreateNotify',
+    'DestroyNotify', 'UnmapNotify', 'MapNotify', 'MapRequest', 'ReparentNotify',
+    'ConfigureNotify', 'ConfigureRequest', 'GravityNotify', 'ResizeRequest',
+    'CirculateNotify', 'CirculateRequest', 'PropertyNotify', 'SelectionClear',
+    'SelectionRequest', 'SelectionNotify', 'ColormapNotify', 'ClientMessage',
+    'MappingNotify');
+begin
+  if (Event >= Low(EventNames)) and (Event <= High(EventNames)) then
+    Result := EventNames[Event]
+  else
+    Result := '#' + IntToStr(Event);
+end;
+
 function TXWindowManager.XEventCB(const AEvent: TXEvent): Boolean;
 var
   Frame: TXFrame;
   RootWindow: TWMRootWindow;
+  Ev: TXConfigureEvent;
 begin
   Result := False;
   //Return True to stop the event from being handled by the toolkit
+  WriteLn('BeginEvent: ', GetXEventName(AEvent.xany._type));
+  fCurrentEvent := @AEvent;
+  Frame := WindowToFrame(AEvent.xany.window);
+
   case AEvent._type of
     ConfigureRequest:
       begin
-        Frame := WindowToFrame(AEvent.xconfigurerequest.window);
-        RootWindow := RootWindows.RootWindowFromXWindow(AEvent.xmaprequest.parent);
+        Result := True;
+        RootWindow := RootWindows.RootWindowFromXWindow(AEvent.xconfigurerequest.parent);
         if  (Frame = nil) and (RootWindow <> nil)
         then
-          Frame := RootWindow.AddNewClient(AEvent.xmaprequest.window);
+          Frame := RootWindow.AddNewClient(AEvent.xconfigurerequest.window);
         if Frame <> nil then
           ConfigureWindow(Frame, AEvent.xconfigurerequest);
-        Result := True;
+      end;
+    ConfigureNotify:
+      begin
+       {if Frame <> nil then
+          if Frame.FrameWindow = AEvent.xconfigure.event then begin
+            Ev := AEvent.xconfigure;
+            Inc(Ev.width, 20);
+            Inc(Ev.height, 40);
+            XSendEvent(Display, Frame.FrameWindow, False, StructureNotifyMask, @Ev);
+            Result := True;
+          end;
+       }
       end;
     MapRequest:
       begin
-        Frame := WindowToFrame(AEvent.xconfigurerequest.window);
+        // do not remove the next line
+        Frame := WindowToFrame(AEvent.xmaprequest.window);
         if Frame <> nil then begin
           MapWindow(Frame);
           Result := True;
@@ -198,7 +244,6 @@ begin
       end;
     ClientMessage:
       begin
-        Frame := WindowToFrame(AEvent.xclient.window);
         if Frame <> nil then begin
           Result := HandleClientMessage(Frame, AEvent.xclient);
         end;
@@ -208,7 +253,6 @@ begin
     //CreateNotify:;// do we need to do anything here?
     DestroyNotify:
       begin
-        Frame := WindowToFrame(AEvent.xdestroywindow.window);
         // only react to the destruction of client windows not of our frame windows
         if (Frame <> nil) and (Frame.ClientWindow = AEvent.xdestroywindow.window) then begin
           DestroyWindowFrame(Frame);
@@ -217,19 +261,29 @@ begin
       end;
     Expose:
       begin
-        Frame := WindowToFrame(AEvent.xexpose.window);
         if (Frame <> nil) and (Frame.FrameWindow = AEvent.xany.window) then begin
-          PaintWindowFrame(Frame);
-          Result := True;
+          Result := PaintWindowFrame(Frame);
         end;
       end
     else
       begin
-        WriteLn('Got Unhandled Event: ', AEvent.xany._type);
-        Result := False;
+        WriteLn('Got Unhandled Event: ', GetXEventName(AEvent.xany._type));
+        //Result := False;
       end;
   end;
-  WriteLn('DoneEvent');
+  WriteLn('DoneEvent: ', GetXEventName(AEvent.xany._type));
+  fCurrentEvent := nil;
+  if (Result = False)
+  and Assigned(Frame)
+  and(AEvent.xany.window <> Frame.FrameWindow) then
+    Result := True;
+
+  //result := False
+end;
+
+function TXWindowManager.GetCurrentEvent: PXEvent;
+begin
+  Result := fCurrentEvent;
 end;
 
 procedure TXWindowManager.MapWindow(const AWindow: TXFrame);
@@ -240,8 +294,6 @@ begin
   // this makes it so if we crash the child windows will be remapped to the screen
   XAddToSaveSet(Display, AWindow.ClientWindow);
 
-  Width := AWindow.FrameWidth - AWindow.FrameLeftWidth - AWindow.FrameRightWidth;
-  Height := AWindow.FrameHeight - AWindow.FrameTopHeight - AWindow.FrameBottomHeight;
   XMapWindow(Display, AWindow.ClientWindow);
 
   XRaiseWindow(Display, AWindow.FrameWindow);
@@ -262,20 +314,22 @@ procedure TXWindowManager.ResizeWindow(const AWindow: TXFrame; AWidth,
 begin
   AWindow.FrameWidth := AWidth+AWindow.FrameLeftWidth+AWindow.FrameRightWidth;
   AWindow.FrameHeight := AHeight+AWindow.FrameTopHeight+AWindow.FrameBottomHeight;
-  // resize the Frame to fit the client window
-  XResizeWindow(Display, AWindow.FrameWindow, AWindow.FrameWidth, AWindow.FrameHeight);
   // resize the client to fit in the frame window
   XResizeWindow(Display, AWindow.ClientWindow, AWidth, AHeight);
+
+  // resize the Frame to fit the client's wanted size
+  // it's important to resize this window after
+  XResizeWindow(Display, AWindow.FrameWindow, AWindow.FrameWidth, AWindow.FrameHeight);
+
 end;
 
 function TXWindowManager.CloseWindowNice(const AWindow: TWindow): Boolean;
 begin
   Result := False;
   if WindowSupportsProto(AWindow, WM_DELETE_WINDOW) then begin
+    SendXSimpleMessage(AWindow, WM_PROTOCOLS, WM_DELETE_WINDOW);
     Result := True;
-    
   end;
-
 end;
 
 procedure TXWindowManager.CloseWindowDirty(const AWindow: TWindow);
@@ -284,9 +338,24 @@ begin
   XKillClient(Display, AWindow);
 end;
 
-procedure TXWindowManager.SendXMessage(const ADestWindow; AMessage: PXEvent; AMask: LongWord);
+procedure TXWindowManager.SendxSimpleMessage(const ADestWindow: TWindow;
+  AMessage: TAtom; AValue: Integer);
+var
+  ClientMsg: TXClientMessageEvent;
 begin
-  //XSendEvent(Display, ADestWindow, True; AMask; AMessage);
+  FillChar(ClientMsg, sizeof(ClientMsg), #0);
+  ClientMsg._type := ClientMessage;
+  ClientMsg.window := ADestWindow;
+  ClientMsg.message_type := AMessage;
+  ClientMsg.format := 32;
+  ClientMsg.data.l[0] := AValue;
+  ClientMsg.data.l[1] := CurrentTime;
+  SendXMessage(ADestWindow, @ClientMsg, 0);
+end;
+
+procedure TXWindowManager.SendXMessage(const ADestWindow: TWindow; AMessage: PXEvent; AMask: LongWord);
+begin
+  XSendEvent(Display, ADestWindow, False, AMask, AMessage);
 end;
 
 procedure TXWindowManager.SendXClientMessage(const ADestWindow: TWindow; AType: TAtom);
@@ -334,6 +403,25 @@ begin
   end;
 end;
 
+function TXWindowManager.GetWindowTitles(const AWindow: TWindow; var MappedTitle, UnmappedTitle: String): Boolean;
+var
+  TypeAtom: TAtom;
+  FormatAtom: TAtom;
+  NumItems, BytesAfter: LongWord;
+  ATitle: PChar;
+begin
+  Result := XGetWindowProperty(Display, AWindow, XA_WM_NAME, 0, 24, False, XA_STRING,
+        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @ATitle)<>0;
+  MappedTitle := ATitle;
+  XFree(ATitle);
+  
+  XGetWindowProperty(Display, AWindow, XA_WM_ICON_NAME, 0, 24, False, XA_STRING,
+        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @ATitle);
+  UnmappedTitle := ATitle;
+  XFree(ATitle);
+  
+end;
+
 procedure TXWindowManager.InitICCCMHints;
 begin
   // currently all ICCCM atoms are defined in XAtom;
@@ -349,6 +437,7 @@ begin
   InitICCCMHints;
   InitNETHints;
   WM_DELETE_WINDOW := XInternAtom(Display, 'WM_DELETE_WINDOW', False);
+  WM_PROTOCOLS     := XInternAtom(Display, 'WM_PROTOCOLS', False);
 
 end;
 
@@ -377,7 +466,7 @@ begin
     NetWMMoveResize(AWindow,
               AClientEv.data.l[0], // x_root
               AClientEv.data.l[1], // y_root
-              AClientEv.data.l[2], // direction
+              AClientEv.data.l[2], // direction see
               AClientEv.data.l[3], // button
               AClientEv.data.l[4]=1);// source (1 for regular apps 2 for pagers or other special apps)
     Result := True;
@@ -392,7 +481,7 @@ begin
   else if Atom = _NET[_REQUEST_FRAME_EXTENTS] then
   begin
   end
-  else WriteLn('Unhandled Client Message');
+  else WriteLn('Unhandled Client Message: ', XGetAtomName(Display, Atom));
 end;
 
 end.

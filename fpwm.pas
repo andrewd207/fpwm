@@ -34,7 +34,7 @@ uses
   { Free Pascal Units }
   SysUtils, xlib,
   { Fpwm Units }
-  fpGui, BaseWM, XWM, XfpGUIWM,
+  BaseWM, XWM, XfpGUIWM,
   { FpGUI Units }
   fpGui;
 

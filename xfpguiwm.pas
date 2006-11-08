@@ -10,19 +10,6 @@ uses
   
 type
 
-  { TfpGUIFrame }
-
-  TfpGUIFrame = class(TXFrame)
-  private
-    fCanvas: TXWindowCanvas;
-    fFont: TXFont;
-    fpGuiWidow: TForm;
-  public
-   constructor Create(AOwner: TBaseWindowManager; AClientWindow: TWindow; AFrameWindow: TWindow); override;
-   property Canvas: TXWindowCanvas read fCanvas write fCanvas;
-   property Font: TXFont read fFont write fFont;
-  end;
-
   { TfpGUIWindowManager }
 
   TfpGUIWindowManager = class(TXWindowManager)
@@ -34,8 +21,9 @@ type
   public
     function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; override;
     procedure DestroyWindowFrame(var AWindow: TXFrame); override;
-    procedure PaintWindowFrame(AFrame: TXFrame); override;
+    function PaintWindowFrame(AFrame: TXFrame): Boolean; override;
     // procedure for client events handling
+    procedure ResizeWindow(const AWindow: TXFrame; AWidth, AHeight: Integer); override;
     procedure NetWMMoveResize(const AWindow: TXFrame; XOffset, YOffset: Integer; Direction: Integer; Button: Integer; FromApp: Boolean); override;
     procedure NetCloseWindow(const AWindow: TXFrame; ATimeStamp: Integer; FromApp: Boolean); override;
     property GfxDisplay: TXDisplay read fGfxDisplay;
@@ -43,6 +31,7 @@ type
   end;
 
 implementation
+uses XfpGUIFrame;
 
 { TfpGUIWindowManager }
 
@@ -87,37 +76,41 @@ var
   SuppliedReturn: clong;
   Geom: TRect;
   Font: PXFontStruct;
+  Form: TForm;
+  GetAttr: TXWindowAttributes;
+  SetAttr: TXSetWindowAttributes;
+  Top, Left, Width, Height: Integer;
 begin
   Result := nil;
   // This hints stuff should be moved to its own procedure
+  //Xgets);
   WriteLn('Creating window frame');
-  if XGetWMSizeHints(Display, AChild, @SizeHints, @SuppliedReturn, XA_WM_SIZE_HINTS)<>0 then
+  if (XGetWMSizeHints(Display, AChild, @SizeHints, @SuppliedReturn, XA_WM_SIZE_HINTS)<>0)
+  or (XGetSizeHints(Display, AChild, @SizeHints, XA_WM_SIZE_HINTS)<>0) then
   begin
-    Geom.Top := 50; //TODO use wingravity
-    Geom.Left := 50; //TODO use wingravity
-    Geom.Right := Geom.Left + SizeHints.base_width;
-    Geom.Bottom := Geom.Top + SizeHints.base_height;
+    Top := 50; //TODO use wingravity
+    Left := 50; //TODO use wingravity
+    Width :=  SizeHints.base_width;
+    Height := SizeHints.base_height;
   end
   else begin
-    Geom.Top := 50;
-    Geom.Left := 50;
+    Top := 50;
+    Left := 50;
     // A Default window size
-    Geom.Right := Geom.Left + 400;
-    Geom.Bottom := Geom.Top + 300;
+    Width := 400;
+    Height := 300;
   end;
 
-  // create the TWindow that is the frame
-  FrameWindow := CreateXWindow(Sender, AScreen, Geom);
+  Frame := TfpGUIFrame.Create(Self, AChild, None);
 
-  Frame := TfpGUIFrame.Create(Self, AChild, FrameWindow);
-
-  Colormap := XDefaultColormap(Display, XScreenNumberOfScreen(AScreen));
+  FrameWindow := Frame.FrameWindow;
   
-  Frame.Font := TXFont.Create(Display, '-adobe-helvetica-medium-r-normal--*-120-*-*-*-*-iso8859-1');
-  // create our canvas object to draw on our frame with
-  Frame.Canvas := TXWindowCanvas.Create(ColorMap, GfxDisplay, FrameWindow, Frame.Font.FontStruct);
+  Frame.Form.SetBounds(Left, Top, Width, Height);
 
-  
+  XGetWindowAttributes(Display, FrameWindow, @GetAttr);
+  SetAttr.event_mask := WindowManagerEventMask or GetAttr.all_event_masks;
+  XChangeWindowAttributes(Display, FrameWindow, CWEventMask , @SetAttr);
+
   XSetWindowBorderWidth(Display, Frame.ClientWindow, 0);
   XReparentWindow(Display, Frame.ClientWindow, Frame.FrameWindow,
                   Frame.FrameLeftWidth, Frame.FrameTopHeight);
@@ -139,30 +132,44 @@ begin
     FrameList.Remove(Frame);
   end;
   // now free our FrameWindow
-  XDestroyWindow(Display, Frame.FrameWindow);
+  Frame.Form.Free;
+  //XDestroyWindow(Display, Frame.FrameWindow);
   // free the stuff we created when we created the window
-  Frame.Canvas.Free;
-  Frame.Font.Free;
   Frame.Free;
   AWindow := nil;
 end;
 
-procedure TfpGUIWindowManager.PaintWindowFrame(AFrame: TXFrame);
+function TfpGUIWindowManager.PaintWindowFrame(AFrame: TXFrame): Boolean;
 var
   Frame: TfpGUIFrame;
   ARect: TRect;
 begin
-  WriteLn('Painting');
-  Frame := TfpGUIFrame(AFrame);
-  ARect.Top := 0;
-  ARect.Left := 0;
-  Arect.Right := AFrame.FrameWidth;
-  ARect.Bottom := AFrame.FrameHeight;
-  Frame.Canvas.SetColor(colBlack);
-  Frame.Canvas.FillRect(ARect);
-  Frame.Canvas.SetColor(colWhite);
-  Frame.Canvas.TextOut(Point(7, 7),'fpwm Managed Window');
+  Result := False;
+  // we'll let fpgui do the painting for us
+end;
 
+
+procedure TfpGUIWindowManager.ResizeWindow(const AWindow: TXFrame; AWidth,
+  AHeight: Integer);
+var
+  Frame: TfpGUIFrame;
+  Width, Height: Integer;
+  Ev : TXConfigureEvent;
+begin
+  {Width := AWidth + Frame.FrameLeftWidth + Frame.FrameRightWidth;
+  Height := AHeight + Frame.FrameTopHeight + Frame.FrameBottomHeight;
+  //Ev := GetCurrentEvent^.xconfigure;
+  Ev._type := ConfigureNotify;
+  Ev.display := Display;
+  Ev.window := AWindow.FrameWindow;
+  Ev.width := Width;
+  Ev.height := Height;
+
+  Writeln('hello');
+  //if Ev.window = Frame.FrameWindow then
+    TXWindow(Frame.Form.Wnd).Dispatch(Ev);
+    //Frame.Form.SetBounds(Frame.Form.BoundsRect.TopLeft, Size(Width, Height));}
+  inherited;
 end;
 
 procedure TfpGUIWindowManager.NetWMMoveResize(const AWindow: TXFrame; XOffset,
@@ -174,26 +181,24 @@ begin
   // resize the window as we move the mouse
   
   // XOffset and YOffset is the mouse position inside the window
+  // For Direction see the _NET_WM_MOVERESIZE consts in NetAtoms
 end;
 
 procedure TfpGUIWindowManager.NetCloseWindow(const AWindow: TXFrame;
   ATimeStamp: Integer; FromApp: Boolean);
 begin
-  // TODO Close window
   // if WM_DELETE_WINDOW is in the windows supported protocols we should send it that
   // it will either close or not if the client doesn't want to.
   // if it doesn't support the WM_DELETE_WINDOW protocol we send XCLientKill
   if not CloseWindowNice(AWindow.ClientWindow)
-    then CloseWindowDirty(AWindow.ClientWindow);
-  // we can usw _NET_WM_PING to see if the application is not responding
-  // then after a timeout
-end;
+    then CloseWindowDirty(AWindow.ClientWindow)
+  else begin
+    // CloseWindowNice worked but check in a few seconds if it responds to a ping
+    // Add Timer to check on status
+    // we can usw _NET_WM_PING if the window supports it to see if the
+    // application is not responding then after a timeout
+  end;
 
-{ TfpGUIFrame }
-
-constructor TfpGUIFrame.Create(AOwner: TBaseWindowManager; AClientWindow: TWindow; AFrameWindow: TWindow);
-begin
-  inherited Create(AOwner, AClientWindow, AFrameWindow);
 end;
 
 end.

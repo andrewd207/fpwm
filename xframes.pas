@@ -58,6 +58,7 @@ type
   end;
 
 implementation
+uses XWM;
 
 { TXFrameList }
 
@@ -125,6 +126,8 @@ end;
 
 constructor TXFrame.Create(AOwner: TBaseWindowManager; AClientWindow: TWindow;
   AFrameWindow: TWindow);
+var
+  ATitle, AUnmappedTitle: String;
 begin
   Owner := AOwner;
   fClientWindow := AClientWindow;
@@ -135,6 +138,8 @@ begin
   fFrameRightWidth := 7;
   fFrameTopHeight := 25;
   fFrameBottomHeight := 7;
+  TXWindowManager(AOwner).GetWindowTitles(AClientWindow, ATitle,AUnmappedTitle);
+  Caption := ATitle;
 end;
 
 destructor TXFrame.Destroy;

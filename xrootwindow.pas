@@ -107,6 +107,7 @@ var
   DeskWorkArea: array [0..3] of Integer;
   
   Attr: TXSetWindowAttributes;
+  Atoms: array [0..10] of TAtom;
 begin
   DeskViewPort[0] := 0;
   DeskViewPort[1] := 0;
@@ -156,37 +157,26 @@ begin
     ChangeWindowProperty(fSupportWindow, _NET[_WM_NAME],
           _NET[UTF8_STRING], 8, PropModeReplace, PChar('fpwm'), 7);
 
+    Atoms[0]  := _NET[_CLIENT_LIST];
+    Atoms[1]  := _NET[_CLIENT_LIST_STACKING];
+    Atoms[2]  := _NET[_NUMBER_OF_DESKTOPS];
+    Atoms[3]  := _NET[_DESKTOP_GEOMETRY];
+    Atoms[4]  := _NET[_DESKTOP_VIEWPORT];
+    Atoms[5]  := _NET[_CURRENT_DESKTOP];
+    Atoms[6]  := _NET[_ACTIVE_WINDOW];
+    Atoms[7]  := _NET[_WORKAREA];
+    Atoms[8]  := _NET[_SUPPORTING_WM_CHECK];
+    Atoms[9]  := _NET[_WM_NAME];
+    Atoms[10] := _NET[_CLOSE_WINDOW];
+
     // Now mark that we support _NET atoms
     ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_CLIENT_LIST], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_CLIENT_LIST_STACKING], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_NUMBER_OF_DESKTOPS], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_DESKTOP_GEOMETRY], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_DESKTOP_VIEWPORT], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_CURRENT_DESKTOP], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_CURRENT_DESKTOP], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_ACTIVE_WINDOW], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_WORKAREA], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_SUPPORTING_WM_CHECK], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_WM_NAME], 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
-          PropModeAppend, @_NET[_CLOSE_WINDOW], 1);
+          PropModeReplace, @Atoms, 11);
   end;
 end;
 
 procedure TWMRootWindow.UnSetICCCMHints;
 begin
-
 end;
 
 procedure TWMRootWindow.UnSetNETHints;
@@ -224,12 +214,14 @@ end;
 
 destructor TWMRootWindow.Destroy;
 begin
+  UnSetHints;
   fFrames.Free;
   inherited Destroy;
 end;
 
 function TWMRootWindow.AddNewClient(AWindow: TWindow): TXFrame;
 begin
+  WriteLn('Creating New Window Frame for; ', AWindow);
   Result := TXWM(fOwner).CreateNewWindowFrame(Self, fScreen, AWindow);
   if Result <> nil then Frames.Add(Result);
 end;
