@@ -299,8 +299,7 @@ end;
 
 procedure TXWindowManager.MapWindow(const AWindow: TXFrame);
 var
- Width,
- Height: Integer;
+  Width, Height: Integer;
 begin
   // this makes it so if we crash the child windows will be remapped to the screen
   XAddToSaveSet(Display, AWindow.ClientWindow);
@@ -313,8 +312,7 @@ begin
   XSetInputFocus(Display, AWindow.ClientWindow, RevertToPointerRoot, CurrentTime);
 end;
 
-procedure TXWindowManager.MoveWindow(const AWindow: TXFrame; APosition: TPoint
-  );
+procedure TXWindowManager.MoveWindow(const AWindow: TXFrame; APosition: TPoint);
 begin
   XMoveWindow(Display, AWindow.FrameWindow, APosition.X, APosition.Y);
   // TODO Send an event to the client so it knows it moved per the ICCCM
@@ -371,7 +369,7 @@ end;
 
 procedure TXWindowManager.SendXClientMessage(const ADestWindow: TWindow; AType: TAtom);
 var
-Ev : TXClientMessageEvent;
+  Ev : TXClientMessageEvent;
 begin
   Ev._type := ClientMessage;
   Ev.window := ADestWindow;
@@ -390,17 +388,15 @@ begin
   XChangeProperty(Display, AWindow, AProperty, AType, AFormat, AMode, AData, Elements);
 end;
 
-procedure TXWindowManager.WindowDeleteProperty(AWindow: TWindow; AProperty: TAtom
-  );
+procedure TXWindowManager.WindowDeleteProperty(AWindow: TWindow; AProperty: TAtom);
 begin
   XDeleteProperty(Display, AWindow, AProperty);
 end;
 
-function TXWindowManager.WindowSupportsProto(AWindow: TWindow; AProto: TAtom
-  ): Boolean;
+function TXWindowManager.WindowSupportsProto(AWindow: TWindow; AProto: TAtom): Boolean;
 var
-Protocols: PAtom;
-I, ProtoCount: Integer;
+  Protocols: PAtom;
+  I, ProtoCount: Integer;
 begin
   Result := False;
   if (XGetWMProtocols(display, AWindow, @Protocols, @ProtoCount) <> 0) then begin
@@ -477,7 +473,6 @@ begin
   WM_DELETE_WINDOW := XInternAtom(Display, 'WM_DELETE_WINDOW', False);
   WM_PROTOCOLS     := XInternAtom(Display, 'WM_PROTOCOLS', False);
   UTF8_STRING      := XInternAtom(Display, 'UTF8_STRING', False);;
-
 end;
 
 function TXWindowManager.ConfigureWindowEv(const AWindow: TXFrame;

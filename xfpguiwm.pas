@@ -31,6 +31,7 @@ type
   end;
 
 implementation
+
 uses XfpGUIFrame;
 
 { TfpGUIWindowManager }
@@ -190,8 +191,8 @@ begin
   // if WM_DELETE_WINDOW is in the windows supported protocols we should send it that
   // it will either close or not if the client doesn't want to.
   // if it doesn't support the WM_DELETE_WINDOW protocol we send XCLientKill
-  if not CloseWindowNice(AWindow.ClientWindow)
-    then CloseWindowDirty(AWindow.ClientWindow)
+  if not CloseWindowNice(AWindow.ClientWindow) then
+   CloseWindowDirty(AWindow.ClientWindow)
   else begin
     // CloseWindowNice worked but check in a few seconds if it responds to a ping
     // Add Timer to check on status

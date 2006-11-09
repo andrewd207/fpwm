@@ -38,10 +38,15 @@ uses
   { FpGUI Units }
   fpGui;
 
+var
+  WM: TfpGUIWindowManager;
 begin
-  with TfpGUIWindowManager.Create('') do begin
-    InitWM(True);
-    MainLoop;
-    Free;
+  WM := TfpGUIWindowManager.Create('');
+  try
+    Application.QuitWhenLastWindowCloses := False;
+    WM.InitWM(True);
+    WM.MainLoop;
+  finally
+    WM.Free;
   end;
 end.

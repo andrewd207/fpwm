@@ -30,10 +30,10 @@
     </RunParams>
     <RequiredPackages Count="2">
       <Item1>
-        <PackageName Value="fpgfxpackage"/>
+        <PackageName Value="fpGUI_laz"/>
       </Item1>
       <Item2>
-        <PackageName Value="fpGUI_laz"/>
+        <PackageName Value="fpgfxpackage"/>
       </Item2>
     </RequiredPackages>
     <Units Count="10">
