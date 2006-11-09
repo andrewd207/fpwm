@@ -38,15 +38,10 @@ uses
   { FpGUI Units }
   fpGui;
 
-var
-  tmpform: TForm;
 begin
   with TfpGUIWindowManager.Create('') do begin
     InitWM(True);
-    // a hack to get around a limitation of fpgui currently
-    tmpForm := TForm.Create(nil);
     MainLoop;
-    tmpform.free;
     Free;
   end;
 end.

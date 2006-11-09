@@ -37,8 +37,10 @@ type
     // create and destroy frame windows
     function CreateNewWindowFrame(Sender: TWMRootWindow; const AScreen: PScreen; const AChild: TWindow): TXFrame; virtual; abstract;
     procedure DestroyWindowFrame(var AWindow: TXFrame); virtual; abstract;
+    // methods responding to TXEvents
+    function ConfigureWindowEv(const AWindow: TXFrame; const AConfigureEv: TXConfigureRequestEvent): Boolean; virtual;
+    function PropertyChangeEv(const AWindow: TXFrame; const APropertyEv: TXPropertyEvent): Boolean; virtual;
     // procedures to handle windows
-    procedure ConfigureWindow(const AWindow: TXFrame; const AConfigureEv: TXConfigureRequestEvent); virtual;
     procedure MapWindow(const AWindow: TXFrame); virtual;
     procedure MoveWindow(const AWindow: TXFrame; APosition: TPoint); virtual;
     procedure ResizeWindow(const AWindow: TXFrame; AWidth, AHeight: Integer); virtual;
@@ -51,14 +53,16 @@ type
     procedure SendXClientMessage(const ADestWindow: TWindow; AType: TAtom);
     // methods responding to ClientMessages
     function HandleClientMessage(const AWindow: TXFrame; const AClientEv: TXClientMessageEvent): Boolean; virtual;
-    procedure NetWMMoveResize(const AWindow: TXFrame; XOffset, YOffset: Integer; Direction: Integer; Button: Integer; FromApp: Boolean); virtual; abstract;
+    procedure NetWMMoveResize(const AWindow: TXFrame; XOffset, YOffset: Integer; Direction: TNetMoveResizeSource; Button: Integer; FromApp: Boolean); virtual; abstract;
     procedure NetCloseWindow(const AWindow: TXFrame; ATimeStamp: Integer; FromApp: Boolean); virtual; abstract;
     // manage window properties
-    procedure ChangeWindowProperty(AWindow: TWindow; AProperty: TAtom;
+    procedure WindowChangeProperty(AWindow: TWindow; AProperty: TAtom;
                 AType: TAtom; AFormat: cint; AMode: cint; const AData: Pointer; Elements: cint);
-    procedure DeleteWindowProperty(AWindow: TWindow; AProperty: TAtom);
+    procedure WindowDeleteProperty(AWindow: TWindow; AProperty: TAtom);
     function WindowSupportsProto(AWindow: TWindow; AProto: TAtom): Boolean;
-    function GetWindowTitles(const AWindow: TWindow; var MappedTitle, UnmappedTitle: String): Boolean;
+    function WindowGetTitle(const AWindow: TWindow): String;
+    function WindowGetPID(const AWindow: TWindow): Integer;
+    procedure WindowSetStandardEventMask(const AClientWindow: TWindow); virtual;
     // procedures to initialize the ICCCM and Extended WM hints
     procedure InitICCCMHints; virtual;
     procedure InitNETHints; virtual;
@@ -145,7 +149,7 @@ var
   J: Integer;
   Frames: TXFrameList;
 begin
-  Writeln('Looking for TXFrame for window: ', AWindow);
+  //Writeln('Looking for TXFrame for window: ', AWindow);
   Result := nil;
   for I := 0 to RootWindows.Count-1 do begin
     if Assigned(Result) then Break;
@@ -159,7 +163,7 @@ begin
       end;
     end;
   end;
-  Writeln('Found TXFrame for : ', AWindow, ' = ', Assigned(Result));
+  //Writeln('Found TXFrame for : ', AWindow, ' = ', Assigned(Result));
 end;
 
 procedure TXWindowManager.InitWM(QueryWindows: Boolean = True);
@@ -206,11 +210,18 @@ var
 begin
   Result := False;
   //Return True to stop the event from being handled by the toolkit
-  WriteLn('BeginEvent: ', GetXEventName(AEvent.xany._type));
+  //WriteLn('BeginEvent: ', GetXEventName(AEvent.xany._type));
   fCurrentEvent := @AEvent;
   Frame := WindowToFrame(AEvent.xany.window);
 
   case AEvent._type of
+    PropertyNotify:
+      begin
+        if Frame <> nil then
+          PropertyChangeEv(Frame, AEvent.xproperty);
+      end;
+    
+
     ConfigureRequest:
       begin
         Result := True;
@@ -219,7 +230,7 @@ begin
         then
           Frame := RootWindow.AddNewClient(AEvent.xconfigurerequest.window);
         if Frame <> nil then
-          ConfigureWindow(Frame, AEvent.xconfigurerequest);
+          ConfigureWindowEv(Frame, AEvent.xconfigurerequest);
       end;
     ConfigureNotify:
       begin
@@ -267,11 +278,11 @@ begin
       end
     else
       begin
-        WriteLn('Got Unhandled Event: ', GetXEventName(AEvent.xany._type));
+        //WriteLn('Got Unhandled Event: ', GetXEventName(AEvent.xany._type));
         //Result := False;
       end;
   end;
-  WriteLn('DoneEvent: ', GetXEventName(AEvent.xany._type));
+  //WriteLn('DoneEvent: ', GetXEventName(AEvent.xany._type));
   fCurrentEvent := nil;
   if (Result = False)
   and Assigned(Frame)
@@ -373,13 +384,13 @@ end;
 // AFormat is the size of the type of elements in bits. so a cardinal is 32 char is 8 etc
 // Elements is how many items there are
 // AMode is PropModeAppend, PropModePrepend, or PropModeReplace
-procedure TXWindowManager.ChangeWindowProperty(AWindow: TWindow; AProperty: TAtom;
+procedure TXWindowManager.WindowChangeProperty(AWindow: TWindow; AProperty: TAtom;
   AType: TAtom; AFormat: cint; AMode: cint; const AData: Pointer; Elements: cint);
 begin
   XChangeProperty(Display, AWindow, AProperty, AType, AFormat, AMode, AData, Elements);
 end;
 
-procedure TXWindowManager.DeleteWindowProperty(AWindow: TWindow; AProperty: TAtom
+procedure TXWindowManager.WindowDeleteProperty(AWindow: TWindow; AProperty: TAtom
   );
 begin
   XDeleteProperty(Display, AWindow, AProperty);
@@ -403,23 +414,50 @@ begin
   end;
 end;
 
-function TXWindowManager.GetWindowTitles(const AWindow: TWindow; var MappedTitle, UnmappedTitle: String): Boolean;
+function TXWindowManager.WindowGetTitle(const AWindow: TWindow): String;
 var
   TypeAtom: TAtom;
   FormatAtom: TAtom;
   NumItems, BytesAfter: LongWord;
   ATitle: PChar;
 begin
-  Result := XGetWindowProperty(Display, AWindow, XA_WM_NAME, 0, 24, False, XA_STRING,
-        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @ATitle)<>0;
-  MappedTitle := ATitle;
-  XFree(ATitle);
-  
-  XGetWindowProperty(Display, AWindow, XA_WM_ICON_NAME, 0, 24, False, XA_STRING,
-        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @ATitle);
-  UnmappedTitle := ATitle;
-  XFree(ATitle);
-  
+  WriteLn('Reading title');
+  Result := 'Untitled Window';
+  if (XGetWindowProperty(Display, AWindow, _NET[_WM_NAME], 0, MaxINt, False, UTF8_STRING,
+        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @ATitle)=Success)
+  or (XGetWindowProperty(Display, AWindow, XA_WM_NAME, 0, 24, False, XA_STRING,
+        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @ATitle)=Success)
+  or (XGetWindowProperty(Display, AWindow, XA_WM_ICON_NAME, 0, 24, False, XA_STRING,
+        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @ATitle)=Success)
+  then begin
+    Result := ATitle;
+    XFree(ATitle);
+  end;
+  WriteLn('Done Reading title');
+end;
+
+function TXWindowManager.WindowGetPID(const AWindow: TWindow): Integer;
+var
+  TypeAtom: TAtom;
+  FormatAtom: TAtom;
+  NumItems, BytesAfter: LongWord;
+begin
+  // Return -1 if no PID available
+  Result := -1;
+  if XGetWindowProperty(Display, AWindow, _NET[_WM_PID], 0, MaxInt, False, XA_CARDINAL,
+        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @Result)<>Success
+  then Result := -1;
+end;
+
+procedure TXWindowManager.WindowSetStandardEventMask(
+  const AClientWindow: TWindow);
+var
+ GetAttr: TXWindowAttributes;
+ SetAttr: TXSetWindowAttributes;
+begin
+  XGetWindowAttributes(Display, AClientWindow,@GetAttr);
+  SetAttr.event_mask := GetAttr.all_event_masks or PropertyChangeMask;
+  XChangeWindowAttributes(Display, AClientWindow, CWEventMask, @SetAttr);
 end;
 
 procedure TXWindowManager.InitICCCMHints;
@@ -438,15 +476,42 @@ begin
   InitNETHints;
   WM_DELETE_WINDOW := XInternAtom(Display, 'WM_DELETE_WINDOW', False);
   WM_PROTOCOLS     := XInternAtom(Display, 'WM_PROTOCOLS', False);
+  UTF8_STRING      := XInternAtom(Display, 'UTF8_STRING', False);;
 
 end;
 
-procedure TXWindowManager.ConfigureWindow(const AWindow: TXFrame;
-  const AConfigureEv: TXConfigureRequestEvent);
+function TXWindowManager.ConfigureWindowEv(const AWindow: TXFrame;
+  const AConfigureEv: TXConfigureRequestEvent): Boolean;
 begin
+  Result := True;
   // Move to the desired position and set the frame size, also the client will be resized
   MoveWindow(AWindow, Point(AConfigureEv.x, AConfigureEv.y));
   ResizeWindow(AWindow, AConfigureEv.width, AConfigureEv.height);
+end;
+
+function TXWindowManager.PropertyChangeEv(const AWindow: TXFrame;
+  const APropertyEv: TXPropertyEvent): Boolean;
+var
+  Event: TXEvent;
+begin exit;
+  if ((APropertyEv.atom = _NET[_WM_NAME])
+      or (APropertyEv.atom = XA_WM_NAME)
+      or (APropertyEv.atom = _NET[_WM_ICON_NAME])
+      or (APropertyEv.atom = XA_WM_ICON_NAME))
+  and (APropertyEv.state <> PropertyDelete)
+  then begin
+    try
+      AWindow.Caption := WindowGetTitle(APropertyEv.window);
+      // We can get property notify events for windows that were being destroyed an now don't exist!!
+    except end;
+  end
+  else if APropertyEv.atom = _NET[_WM_PID] then begin
+    AWindow.PID := WindowGetPID(AWindow.ClientWindow);
+  end
+  else begin
+    Writeln('Got Unhandled property notify event: ', XGetAtomName(Display, APropertyEv.atom));
+  end;
+  Result := True;
 end;
 
 function TXWindowManager.HandleClientMessage(const AWindow: TXFrame;

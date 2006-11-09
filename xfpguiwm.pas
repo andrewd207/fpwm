@@ -6,7 +6,7 @@ interface
 
 uses
   Classes, BaseWM, X, XLib, XUtil, XAtom, ctypes, XWM, XFrames, XRootWindow,
-  fpGui, GfxBase, Gfx_X11;
+  fpGui, GfxBase, Gfx_X11, NetAtoms;
   
 type
 
@@ -24,7 +24,7 @@ type
     function PaintWindowFrame(AFrame: TXFrame): Boolean; override;
     // procedure for client events handling
     procedure ResizeWindow(const AWindow: TXFrame; AWidth, AHeight: Integer); override;
-    procedure NetWMMoveResize(const AWindow: TXFrame; XOffset, YOffset: Integer; Direction: Integer; Button: Integer; FromApp: Boolean); override;
+    procedure NetWMMoveResize(const AWindow: TXFrame; XOffset, YOffset: Integer; Direction: TNetMoveResizeSource; Button: Integer; FromApp: Boolean); override;
     procedure NetCloseWindow(const AWindow: TXFrame; ATimeStamp: Integer; FromApp: Boolean); override;
     property GfxDisplay: TXDisplay read fGfxDisplay;
 
@@ -100,7 +100,7 @@ begin
     Width := 400;
     Height := 300;
   end;
-
+  
   Frame := TfpGUIFrame.Create(Self, AChild, None);
 
   FrameWindow := Frame.FrameWindow;
@@ -110,7 +110,7 @@ begin
   XGetWindowAttributes(Display, FrameWindow, @GetAttr);
   SetAttr.event_mask := WindowManagerEventMask or GetAttr.all_event_masks;
   XChangeWindowAttributes(Display, FrameWindow, CWEventMask , @SetAttr);
-
+  
   XSetWindowBorderWidth(Display, Frame.ClientWindow, 0);
   XReparentWindow(Display, Frame.ClientWindow, Frame.FrameWindow,
                   Frame.FrameLeftWidth, Frame.FrameTopHeight);
@@ -173,7 +173,7 @@ begin
 end;
 
 procedure TfpGUIWindowManager.NetWMMoveResize(const AWindow: TXFrame; XOffset,
-  YOffset: Integer; Direction: Integer; Button: Integer; FromApp: Boolean);
+  YOffset: Integer; Direction: TNetMoveResizeSource; Button: Integer; FromApp: Boolean);
 begin
   // TODO Resize window
   // we can assume that the mouse is down, so we have to track the mouse

@@ -23,6 +23,7 @@ type
     fFrameTopHeight: Integer;
     fFrameWidth: Integer;
     fFrameWindow: TWindow;
+    fPID: Integer;
     //fPosition
     //fSize
     procedure SetCaption(const AValue: String); override;
@@ -43,6 +44,7 @@ type
     property FrameRightWidth: Integer read fFrameRightWidth write SetFrameRightWidth;
     property FrameWidth: Integer read fFrameWidth write SetFrameWidth;
     property FrameHeight: Integer read fFrameHeight write SetFrameHeight;
+    property PID: Integer read fPID write fPID;
   end;
   
   { TXFrameList }
@@ -128,7 +130,9 @@ constructor TXFrame.Create(AOwner: TBaseWindowManager; AClientWindow: TWindow;
   AFrameWindow: TWindow);
 var
   ATitle, AUnmappedTitle: String;
+  WM : TXWindowManager;
 begin
+  WM := TXWindowManager(AOwner);;
   Owner := AOwner;
   fClientWindow := AClientWindow;
   fFrameWindow := AFrameWindow;
@@ -138,8 +142,8 @@ begin
   fFrameRightWidth := 7;
   fFrameTopHeight := 25;
   fFrameBottomHeight := 7;
-  TXWindowManager(AOwner).GetWindowTitles(AClientWindow, ATitle,AUnmappedTitle);
-  Caption := ATitle;
+  Caption := WM.WindowGetTitle(AClientWindow);
+  WM.WindowSetStandardEventMask(AClientWindow);
 end;
 
 destructor TXFrame.Destroy;

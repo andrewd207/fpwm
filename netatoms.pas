@@ -38,8 +38,7 @@ type
     _RESTACK_WINDOW,
     _REQUEST_FRAME_EXTENTS,
 
-    //Types
-    UTF8_STRING,
+
     //Application Window Properties
     _WM_NAME, // UTF8 String
     _WM_VISIBLE_NAME, //UTF8 String
@@ -123,6 +122,7 @@ const
   _NET_WM_STATE_TOGGLE       = 2;    // toggle property
 
 type
+  TNetMoveResizeSource = Integer; // see the _NET_WM_MOVERESIZE_* consts above
   TNetAtoms = array [TNETAtom] of X.TAtom;
 
 procedure Init_NETAtoms(const ADisplay: PXDisplay; out AAtoms: TNetAtoms);
@@ -164,7 +164,6 @@ begin
     _WM_MOVERESIZE         : Result := '_NET_WM_MOVERESIZE';
     _RESTACK_WINDOW        : Result := '_NET_RESTACK_WINDOW';
     _REQUEST_FRAME_EXTENTS : Result := '_NET_REQUEST_FRAME_EXTENTS';
-     UTF8_STRING           : Result :=  'UTF8_STRING';
     _WM_NAME               : Result := '_NET_WM_NAME';
     _WM_VISIBLE_NAME       : Result := '_NET_WM_VISIBLE_NAME';
     _WM_ICON_NAME          : Result := '_NET_WM_ICON_NAME';

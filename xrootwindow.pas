@@ -5,7 +5,7 @@ unit XRootWindow;
 interface
 
 uses
-  Classes, X, XLib, XAtom, XFrames, ctypes, BaseWM, NetAtoms;
+  Classes, X, XLib, XAtom, XFrames, ctypes, BaseWM, NetAtoms, XAtoms;
   
 type
 
@@ -132,30 +132,30 @@ begin
   exit;
   with WM do begin
     // Set the atoms on the RootWindow
-    ChangeWindowProperty(Self.RootWindow, _NET[_CLIENT_LIST],
+    WindowChangeProperty(Self.RootWindow, _NET[_CLIENT_LIST],
            XA_WINDOW, 32, PropModeReplace, nil, 0);
-    ChangeWindowProperty(Self.RootWindow, _NET[_CLIENT_LIST_STACKING],
+    WindowChangeProperty(Self.RootWindow, _NET[_CLIENT_LIST_STACKING],
           XA_WINDOW, 32, PropModeReplace, nil, 0);
-    ChangeWindowProperty(Self.RootWindow, _NET[_NUMBER_OF_DESKTOPS],
+    WindowChangeProperty(Self.RootWindow, _NET[_NUMBER_OF_DESKTOPS],
           XA_CARDINAL, 32, PropModeReplace, @DeskCount, 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_DESKTOP_GEOMETRY],
+    WindowChangeProperty(Self.RootWindow, _NET[_DESKTOP_GEOMETRY],
           XA_CARDINAL, 32, PropModeReplace, @DeskGeom, 2);
-    ChangeWindowProperty(Self.RootWindow, _NET[_DESKTOP_VIEWPORT],
+    WindowChangeProperty(Self.RootWindow, _NET[_DESKTOP_VIEWPORT],
           XA_CARDINAL, 32, PropModeReplace, @DeskViewPort, 2);
-    ChangeWindowProperty(Self.RootWindow, _NET[_CURRENT_DESKTOP],
+    WindowChangeProperty(Self.RootWindow, _NET[_CURRENT_DESKTOP],
           XA_CARDINAL, 32, PropModeReplace, @DeskCurrent, 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_ACTIVE_WINDOW],
+    WindowChangeProperty(Self.RootWindow, _NET[_ACTIVE_WINDOW],
           XA_WINDOW, 32, PropModeReplace, @DeskActive, 1);
-    ChangeWindowProperty(Self.RootWindow, _NET[_WORKAREA],
+    WindowChangeProperty(Self.RootWindow, _NET[_WORKAREA],
           XA_CARDINAL, 32, PropModeReplace, @DeskWorkArea, 4);
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTING_WM_CHECK],
+    WindowChangeProperty(Self.RootWindow, _NET[_SUPPORTING_WM_CHECK],
           XA_WINDOW, 32, PropModeReplace, @fSupportWindow, 1);
 
     // Set the atoms on the support window
-    ChangeWindowProperty(Self.fSupportWindow, _NET[_SUPPORTING_WM_CHECK],
+    WindowChangeProperty(Self.fSupportWindow, _NET[_SUPPORTING_WM_CHECK],
           XA_WINDOW, 32, PropModeReplace, @fSupportWindow, 1);
-    ChangeWindowProperty(fSupportWindow, _NET[_WM_NAME],
-          _NET[UTF8_STRING], 8, PropModeReplace, PChar('fpwm'), 7);
+    WindowChangeProperty(fSupportWindow, _NET[_WM_NAME],
+          UTF8_STRING, 8, PropModeReplace, PChar('fpwm'), 7);
 
     Atoms[0]  := _NET[_CLIENT_LIST];
     Atoms[1]  := _NET[_CLIENT_LIST_STACKING];
@@ -170,7 +170,7 @@ begin
     Atoms[10] := _NET[_CLOSE_WINDOW];
 
     // Now mark that we support _NET atoms
-    ChangeWindowProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
+    WindowChangeProperty(Self.RootWindow, _NET[_SUPPORTED], XA_ATOM, 32,
           PropModeReplace, @Atoms, 11);
   end;
 end;
@@ -185,18 +185,18 @@ var
 begin
   WM := TXWM(Owner);
   with WM do begin
-    DeleteWindowProperty(RootWindow, _NET[_SUPPORTED]);
-    DeleteWindowProperty(RootWindow, _NET[_CLIENT_LIST]);
-    DeleteWindowProperty(RootWindow, _NET[_CLIENT_LIST_STACKING]);
-    DeleteWindowProperty(RootWindow, _NET[_NUMBER_OF_DESKTOPS]);
-    DeleteWindowProperty(RootWindow, _NET[_DESKTOP_GEOMETRY]);
-    DeleteWindowProperty(RootWindow, _NET[_DESKTOP_VIEWPORT]);
-    DeleteWindowProperty(RootWindow, _NET[_CURRENT_DESKTOP]);
-    DeleteWindowProperty(RootWindow, _NET[_ACTIVE_WINDOW]);
-    DeleteWindowProperty(RootWindow, _NET[_WORKAREA]);
-    DeleteWindowProperty(RootWindow, _NET[_SUPPORTING_WM_CHECK]);
-    DeleteWindowProperty(fSupportWindow, _NET[_SUPPORTING_WM_CHECK]);
-    DeleteWindowProperty(fSupportWindow, _NET[_WM_NAME]);
+    WindowDeleteProperty(RootWindow, _NET[_SUPPORTED]);
+    WindowDeleteProperty(RootWindow, _NET[_CLIENT_LIST]);
+    WindowDeleteProperty(RootWindow, _NET[_CLIENT_LIST_STACKING]);
+    WindowDeleteProperty(RootWindow, _NET[_NUMBER_OF_DESKTOPS]);
+    WindowDeleteProperty(RootWindow, _NET[_DESKTOP_GEOMETRY]);
+    WindowDeleteProperty(RootWindow, _NET[_DESKTOP_VIEWPORT]);
+    WindowDeleteProperty(RootWindow, _NET[_CURRENT_DESKTOP]);
+    WindowDeleteProperty(RootWindow, _NET[_ACTIVE_WINDOW]);
+    WindowDeleteProperty(RootWindow, _NET[_WORKAREA]);
+    WindowDeleteProperty(RootWindow, _NET[_SUPPORTING_WM_CHECK]);
+    WindowDeleteProperty(fSupportWindow, _NET[_SUPPORTING_WM_CHECK]);
+    WindowDeleteProperty(fSupportWindow, _NET[_WM_NAME]);
 
     XDestroyWindow(Display, fSupportWindow);
   end;

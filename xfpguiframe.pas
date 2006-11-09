@@ -23,6 +23,7 @@ type
     fForm: TForm;
     fBox: TGridLayout;
     fTitleLabel: TLabel;
+    //fIcon: t
     fCloseBttn,
     fMinimizeBttn,
     fRestoreBttn: TButton;
@@ -50,24 +51,28 @@ end;
 
 constructor TfpGUIFrame.Create(AOwner: TBaseWindowManager; AClientWindow: TWindow; AFrameWindow: TWindow);
 begin
+  // consider all buttons and labels in this routine as just the shortest route
+  // to have the basic things a window needs. These must be changed later to be prettier.
   fForm := TForm.Create(nil);
   fForm.WindowOptions := [woBorderless, woX11SkipWMHints];
+  fForm.BorderWidth := 2;
   fBox := TGridLayout.Create(fForm);
   fBox.Parent := fForm;
   fBox.ColCount := 4;
   fBox.RowCount := 2;
 
   fTitleLabel := TLabel.Create(Caption,fForm);
-
-  fBox.AddWidget(fTitleLabel,1,0,1,1);
+  fBox.AddWidget(fTitleLabel,1,0,2,1);
   fCloseBttn := TButton.Create('X', fForm);
-  fCloseBttn.SetBounds(1,0,20,20);
+
   fCloseBttn.Embedded := True;
 
   fBox.AddWidget(fCloseBttn, 3,0,1,1);
+  fCloseBttn.SetBounds(3,0,10,10);
   //fCloseBttn.SetBounds(60, 3, 20,20);
   fCloseBttn.OnClick := @CloseClick;
   // create the TWindow that is the frame
+  Caption := TfpGUIWindowManager(AOwner).WindowGetTitle(AClientWindow);
   inherited Create(AOwner, AClientWindow, TXWindow(Form.Wnd).Handle);
 end;
 

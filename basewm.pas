@@ -8,7 +8,6 @@ uses
   Classes;
   
 type
-
   // A base window manager. this might be useful later
   TBaseWindowManager = class(TObject)
   public
