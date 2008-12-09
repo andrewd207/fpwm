@@ -36,14 +36,14 @@ uses
   { Fpwm Units }
   BaseWM, XWM, XfpGUIWM,
   { FpGUI Units }
-  fpGui;
+  fpg_main;
 
 var
   WM: TfpGUIWindowManager;
 begin
   WM := TfpGUIWindowManager.Create('');
   try
-    Application.QuitWhenLastWindowCloses := False;
+    fpgApplication.Initialize;
     WM.InitWM(True);
     WM.MainLoop;
   finally
