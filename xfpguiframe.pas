@@ -88,7 +88,7 @@ begin
 
   FTitleBar.MouseCursor := mcMove;
   BringWindowToFront;
-
+  FocusWindow;
 
 end;
 
