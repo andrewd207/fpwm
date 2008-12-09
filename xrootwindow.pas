@@ -29,7 +29,7 @@ type
   public
     constructor Create(AOwner: TBaseWindowManager; AScreen: PScreen; AWindow: TWindow);
     destructor Destroy; override;
-    function AddNewClient(AWindow: TWindow): TXFrame;
+    function AddNewClient(AWindow: TWindow; AX, AY, AWidth, AHeight: Integer; AOverrideDirect: TBool): TXFrame;
     procedure GrabExistingWindows;
     procedure SetHints;
     procedure UnSetHints;
@@ -117,7 +117,7 @@ begin
   DeskWorkArea[2] := Width;
   DeskWorkArea[3] := Height;
   
-  Attr.override_redirect := True;
+  Attr.override_redirect := TBool(True);
   fSupportWindow := XCreateWindow(TXWM(Owner).Display, RootWindow,
                              0, 0,         // X, Y
                              1, 1,         // Width, Height
@@ -219,11 +219,12 @@ begin
   inherited Destroy;
 end;
 
-function TWMRootWindow.AddNewClient(AWindow: TWindow): TXFrame;
+function TWMRootWindow.AddNewClient(AWindow: TWindow; AX, AY, AWidth, AHeight: Integer; AOverrideDirect: TBool): TXFrame;
 begin
-  WriteLn('Creating New Window Frame for; ', AWindow);
-  Result := TXWM(fOwner).CreateNewWindowFrame(Self, fScreen, AWindow);
+  WriteLn('Maybe Creating New Window Frame for; ', AWindow, 'X =' , Ax, 'Y = ', Ay, ' Width =', AWidth,' Height = ', AHeight);
+  Result := TXWM(fOwner).CreateNewWindowFrame(Self, fScreen, AWindow, AX, AY, AWidth, AHeight, AOverrideDirect);
   if Result <> nil then Frames.Add(Result);
+  if Result = nil then WriteLn('Didn''t create Frame');
 end;
 
 procedure TWMRootWindow.GrabExistingWindows;
@@ -233,7 +234,10 @@ var
   WindowsRoot, WindowsParent: TWindow;
   ChildrenList: PWindow;
   WindowAttributes: TXWindowAttributes;
+  Frame: TXFrame;
+ WM: TXWM;
 begin
+  WM := TXWM(Owner);
   if XQueryTree(TXWM(fOwner).Display, fRootWindow, @WindowsRoot, @WindowsParent,
             @ChildrenList, @WindowCount) <> 0 then
   begin
@@ -244,12 +248,23 @@ begin
       fIsRealRoot := False;
     // this finds out if the window want's to be managed or not.
     for I := 0 to WindowCount-1 do begin
+      //WriteLn('Possibly mapping window');
       XGetWindowAttributes(TXWM(fOwner).Display, ChildrenList[I], @WindowAttributes);
       // override_redirect are windows like menus or hints that appear with no border
       // we don't manage them
-      if  (WindowAttributes.override_redirect = False)
+      if  (WindowAttributes.override_redirect = TBool(False))
       and (WindowAttributes.map_state = IsViewable)
-      then AddNewClient(ChildrenList[I]);
+      then
+      begin
+        Frame := AddNewClient(ChildrenList[I],
+                          WindowAttributes.x,
+                          WindowAttributes.y,
+                          WindowAttributes.width,
+                          WindowAttributes.height,
+                          WindowAttributes.override_redirect);
+        if Frame <> nil then
+          Frame.MapWindow;
+      end;
     end;
     XFree(ChildrenList);
   end;
@@ -295,6 +310,7 @@ function TWMRootWindowList.RootWindowFromXWindow(const ARootWindow: TWindow
 var
   I: Integer;
 begin
+  //WriteLn('Window Count = ',Count);
   Result := nil;
   for I := 0 to Count-1 do begin
     if ARootWindow = Windows[I].RootWindow then Exit(Windows[I]);
