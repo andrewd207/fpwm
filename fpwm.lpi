@@ -39,67 +39,69 @@
         <PackageName Value="fpgui_toolkit"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="12">
+    <Units Count="11">
       <Unit0>
         <Filename Value="fpwm.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="main.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit1>
-      <Unit2>
         <Filename Value="basewm.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="BaseWM"/>
-      </Unit2>
-      <Unit3>
+      </Unit1>
+      <Unit2>
         <Filename Value="xwm.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="XWM"/>
-      </Unit3>
-      <Unit4>
+      </Unit2>
+      <Unit3>
         <Filename Value="xrootwindow.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="XRootWindow"/>
-      </Unit4>
-      <Unit5>
+      </Unit3>
+      <Unit4>
         <Filename Value="xframes.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="XFrames"/>
-      </Unit5>
-      <Unit6>
+      </Unit4>
+      <Unit5>
         <Filename Value="xfpguiwm.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="XfpGUIWM"/>
-      </Unit6>
-      <Unit7>
+      </Unit5>
+      <Unit6>
         <Filename Value="netatoms.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="NETAtoms"/>
-      </Unit7>
-      <Unit8>
+      </Unit6>
+      <Unit7>
         <Filename Value="xatoms.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="XAtoms"/>
-      </Unit8>
-      <Unit9>
+      </Unit7>
+      <Unit8>
         <Filename Value="xfpguiframe.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="XfpGUIFrame"/>
-      </Unit9>
-      <Unit10>
+      </Unit8>
+      <Unit9>
         <Filename Value="xfpwmwidgets.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit10>
-      <Unit11>
+      </Unit9>
+      <Unit10>
         <Filename Value="xfpguiwindow.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit11>
+      </Unit10>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
+    <Target>
+      <Filename Value="fpwm"/>
+    </Target>
+    <SearchPaths>
+      <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
+    </SearchPaths>
     <Parsing>
       <SyntaxOptions>
         <CStyleOperator Value="False"/>

@@ -1,5 +1,0 @@
-const lower_width = 10;
-const lower_height = 10;
-const lower_bits: array[0..19] of Byte = (
-   $00, $00, $30, $00, $30, $00, $30, $00, $30, $00, $b6, $01,
-   $fc, $00, $78, $00, $30, $00, $00, $00);
