@@ -1,0 +1,7 @@
+fpwm
+*.[oa]
+*.ppu
+*.lps
+*.compiled
+*.bak*
+*.exe
