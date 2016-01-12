@@ -52,8 +52,11 @@ type
   { TfpgClientWindow }
 
   TfpgClientWindow = class(TfpgWidget)
+  protected
+    FWinHandle: TfpgWinHandle;
+  public
     constructor Create(AOwner: TComponent; AWinHandle: TfpgWinHandle);
-    procedure   DoAllocateWindowHandle(AParent: TfpgWindowBase); override;
+    //procedure   DoAllocateWindowHandle(AParent: TfpgWindowBase); override;
   end;
 
 implementation
@@ -273,10 +276,10 @@ begin
   FWinHandle := AWinHandle;
 end;
 
-procedure TfpgClientWindow.DoAllocateWindowHandle ( AParent: TfpgWindowBase ) ;
+{procedure TfpgClientWindow.DoAllocateWindowHandle ( AParent: TfpgWindowBase ) ;
 begin
   inherited DoAllocateWindowHandle ( AParent ) ;
-end;
+end;}
 
 end.
 

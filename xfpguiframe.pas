@@ -13,7 +13,7 @@ uses
   fpg_base, fpg_main, fpg_x11, fpg_form, fpg_widget, fpg_label,fpg_button, ctypes,
   { program units }
   BaseWM,
-  XfpGUIWM, XFrames, xfpwmwidgets, XRootWindow;
+  XfpGUIWM, XFrames, xfpwmwidgets, XRootWindow, xfpguiwindow;
 
 type
   { TfpGUIFrame }
@@ -24,7 +24,7 @@ type
     FOrigXY: TPoint;
     FStartDragPos: TPoint;
     FMouseIsDown: Boolean;
-    FForm: TfpgForm;
+    FForm: TfpguiWindow;
     FTitleBar: TXfpgWMTitleBar;
     FfpgClientWindow: TfpgClientWindow;
     procedure FormResize(Sender: TObject);
@@ -38,7 +38,7 @@ type
   public
    constructor Create(AOwner: TBaseWindowManager; AClientWindow: TWindow; AFrameWindow: TWindow; ARootWindow: TWindow; AX,AY,AW,AH: Integer); override;
    destructor  Destroy; override;
-   property Form: TfpgForm read fForm;
+   property Form: TfpguiWindow read FForm;
   end;
 
 implementation
@@ -71,13 +71,14 @@ end;
 procedure TfpGUIFrame.TitleBarMouseDown ( Sender: TObject;
   AButton: TMouseButton; AShift: TShiftState; const AMousePos: TPoint ) ;
 var
-  WM: TfpGUIWindowManager absolute Owner;
+  WM: TfpGUIWindowManager;
   RootX, RootY: cint;
   CW: TWindow;
   CWX, CWY: cint;
   RW: TWindow;
   mask: cuint;
 begin
+  WM := TfpGUIWindowManager(Owner);
   FMouseIsDown := True;
   //FOrigXY:= Point(FForm.Top, FForm.Left);
   //WriteLn('MOuse is down');
@@ -170,13 +171,10 @@ constructor TfpGUIFrame.Create(AOwner: TBaseWindowManager; AClientWindow: TWindo
 begin
   // consider all buttons and labels in this routine as just the shortest route
   // to have the basic things a window needs. These must be changed later to be prettier.
-  FForm := TfpgForm.Create(fpgApplication);
-  FForm.WindowAttributes := [waBorderless,waUnblockableMessages, waX11SkipWMHints];
-
+  FForm := TfpguiWindow.Create(fpgApplication);
   FForm.OnResize := @FormResize;
   FForm.OnPaint := @FormPaint;
-
-  TFPWMFormAccess(fForm).DoAllocateWindowHandle(nil);
+  FForm.Visible:=True;
 
   FfpgClientWindow := TfpgClientWindow.Create(FForm, AClientWindow);
   FTitleBar := TXfpgWMTitleBar.Create(FForm);
@@ -192,15 +190,14 @@ begin
   //Caption := TfpGUIWindowManager(AOwner).WindowGetTitle(AClientWindow);
 
 
-  inherited Create(AOwner, AClientWindow, TWindow(fForm.WinHandle), ARootWindow, AX,AY,AW,AH);
+  inherited Create(AOwner, AClientWindow, TWindow(fForm.Window.WinHandle), ARootWindow, AX,AY,AW,AH);
 
 end;
 
 destructor TfpGUIFrame.Destroy;
 begin
-  fpgPostMessage(FForm, fpgApplication, FPGM_CLOSE);
-  //fForm.Free;
-  //fpgApplication.PopModalForm;
+  fpgPostMessage(nil, FForm, FPGM_KILLME);
+
   inherited Destroy;
 end;
 

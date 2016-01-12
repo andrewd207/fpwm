@@ -50,6 +50,7 @@ type
     procedure WindowDeleteProperty(AWindow: TWindow; AProperty: TAtom);
     function WindowSupportsProto(AWindow: TWindow; AProto: TAtom): Boolean;
     function WindowGetTitle(const AWindow: TWindow): String;
+    function WindowGetUserTime(const AWindow: TWindow): LongWord;
     function WindowGetPID(const AWindow: TWindow): Integer;
     procedure WindowSetStandardEventMask(const AClientWindow: TWindow); virtual;
     function  WindowGetParent(AWindow: TWindow): TWindow;
@@ -286,6 +287,7 @@ begin
     //CreateNotify:;// do we need to do anything here?
     DestroyNotify:
       begin
+        wRITElN('Destroy Notify');
         // only react to the destruction of client windows not of our frame windows
         Frame := WindowToFrame(AEvent.xdestroywindow.window);
         if (Frame <> nil) and (Frame.ClientWindow = AEvent.xdestroywindow.window) then begin
@@ -349,7 +351,7 @@ begin
 end;
 
 
-procedure TXWindowManager.SendxSimpleMessage(const ADestWindow: TWindow;
+procedure TXWindowManager.SendXSimpleMessage(const ADestWindow: TWindow;
   AMessage: TAtom; AValue: Integer);
 var
   ClientMsg: TXClientMessageEvent;
@@ -436,6 +438,19 @@ begin
   if Result = '' then
     Result := 'Untitled';
 
+end;
+
+function TXWindowManager.WindowGetUserTime(const AWindow: TWindow): LongWord;
+var
+  TypeAtom: TAtom;
+  FormatAtom: TAtom;
+  NumItems, BytesAfter: LongWord;
+begin
+  // Return 0 if property is unset
+  Result := 0;
+  if XGetWindowProperty(Display, AWindow, _NET[_WM_USER_TIME], 0, 1, False, XA_CARDINAL,
+        @TypeAtom, @FormatAtom, @NumItems, @BytesAfter, @Result)<>Success
+  then Result := 0;
 end;
 
 function TXWindowManager.WindowGetPID(const AWindow: TWindow): Integer;

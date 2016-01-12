@@ -40,6 +40,7 @@ type
     FMaxSize: TSize;
     FMinSize: TSize;
     fPID: Integer;
+
     procedure SetMaxSize ( const AValue: TSize ) ;
     procedure SetMinSize ( const AValue: TSize ) ;
     //fPosition
@@ -48,6 +49,7 @@ type
     Display: PXDisplay;
     RootWindow: TWindow;
     FFrameInitialProps: TXFrameInitialProps;
+    FLastUserTime: Cardinal;
     procedure SetCaption(const AValue: String); override;
     procedure SetFrameBottomHeight(const AValue: Integer); virtual;
     procedure SetFrameHeight(const AValue: Integer); virtual;
@@ -217,8 +219,9 @@ end;
 
 procedure TXFrame.CheckInitialProps;
 var
-  WM: TXWindowManager absolute owner;
+  WM: TXWindowManager;
 begin
+  WM := TXWindowManager(Owner);
   if xfpTitle in FFrameInitialProps = False then
   begin
     Caption := WM.WindowGetTitle(ClientWindow);
@@ -291,8 +294,9 @@ end;
 procedure TXFrame.MapWindow;
 var
   Width, Height: Integer;
-  WM: TXWindowManager absolute Owner;
+  WM: TXWindowManager;
 begin
+  WM := TXWindowManager(Owner);
   // this makes it so if we crash the child windows will be remapped to the screen
   XAddToSaveSet(Display, ClientWindow);
 
@@ -356,8 +360,9 @@ end;
 
 function TXFrame.CloseWindowNice: Boolean;
 var
-  WM: TXWindowManager absolute Owner;
+  WM: TXWindowManager;
 begin
+  WM := TXWindowManager(Owner);
   Result := False;
   if WM.WindowSupportsProto(ClientWindow, WM_DELETE_WINDOW) then begin
     TXWindowManager(Owner).SendXSimpleMessage(ClientWindow, WM_PROTOCOLS, WM_DELETE_WINDOW);
@@ -373,9 +378,10 @@ end;
 
 procedure TXFrame.SendClientFakeMoveEvent ( AX, AY: Integer ) ;
 var
-  WM: TXWindowManager absolute Owner;
+  WM: TXWindowManager;
   Msg: TXEvent;
 begin
+  WM := TXWindowManager(Owner);
   msg.xconfigure._type := ConfigureNotify;
   msg.xconfigure.display := Display;
   msg.xconfigure.window := ClientWindow;
@@ -407,11 +413,14 @@ end;
 function TXFrame.PropertyChangeEv(const APropertyEv: TXPropertyEvent): Boolean;
 var
   Event: TXEvent;
-  WM: TXWindowManager absolute Owner;
+  WM: TXWindowManager;
 begin
+  WM := TXWindowManager(Owner);
   Result := True;//False;
   if APropertyEv.window = FrameWindow then
     Exit; //==>
+
+  //WriteLn(XGetAtomName(Display, APropertyEv.atom));
 
   if ((APropertyEv.atom = WM._NET[_WM_NAME])
       or (APropertyEv.atom = XA_WM_NAME)
@@ -430,6 +439,9 @@ begin
   else if APropertyEv.atom = XA_WM_NORMAL_HINTS then begin
     _ReadWMNormalHints;
   end
+  else if APropertyEv.atom = WM._NET[_WM_USER_TIME] then begin
+    FLastUserTime := WM.WindowGetUserTime(ClientWindow);
+  end
   else begin
     Writeln('Got Unhandled property notify event: ', XGetAtomName(Display, APropertyEv.atom));
   end;
@@ -439,8 +451,9 @@ end;
 function TXFrame.HandleClientMessage(const AClientEv: TXClientMessageEvent): Boolean;
 var
 Atom: TAtom;
-WM: TXWindowManager absolute Owner;
+WM: TXWindowManager;
 begin
+  WM := TXWindowManager(Owner);
   //Return False to not eat the event
   Result := False;
   if AClientEv.window = FrameWindow then
@@ -507,13 +520,13 @@ var
   AWidth: LongInt;
   AHeight: LongInt;
 
-begin exit;//
+begin //exit;//
   SuppliedReturn := $FFFFFFFF;
   if (XGetWMNormalHints(Display, ClientWindow, @SizeHints, @SuppliedReturn) <>0)
   or (XGetWMSizeHints(Display, ClientWindow,@SizeHints, @SuppliedReturn, XA_WM_SIZE_HINTS)<>0)
   then
   begin
-    WriteLn('Got SizeHints');
+    //WriteLn('Got SizeHints');
     if SuppliedReturn and PBaseSize <> 0 then
     begin
       AWidth :=  SizeHints.base_width;
@@ -523,7 +536,7 @@ begin exit;//
 
       Include(FFrameInitialProps, xfpSize);
       Include(FFrameInitialProps, xfpPosition);
-      WriteLN('BaseSize = ', AWidth,':', AHeight);
+      //WriteLN('BaseSize = ', AWidth,':', AHeight);
       FClientHeight := AHeight;
       FClientWidth := AWidth;
     end;
